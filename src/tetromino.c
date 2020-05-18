@@ -5,7 +5,7 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x) {
      * between 0-8.  */
     Tetromino new_tetromino;
     new_tetromino.tetromino_type = tetromino_type;
-    new_tetromino.blocks_yx[0].y = 0; // will be -8 once drop zone and time steps implemented
+    new_tetromino.blocks_yx[0].y = 0; 
     new_tetromino.blocks_yx[0].x = topleft_x;
 
     switch (tetromino_type) {

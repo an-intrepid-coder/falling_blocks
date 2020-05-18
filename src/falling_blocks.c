@@ -8,7 +8,7 @@
 
 /* TO-DO:
 
-    2. String parsing.
+    1. String parsing.
 
 */
 
@@ -22,7 +22,7 @@ bool game_fits_screen (void) {
     return false;
 }
 
-Coord get_game_screen_starting_yx () {
+Coord get_game_screen_starting_yx (void) {
     /* takes pointers to two integers and returns the coordinates as an object.  */
     Coord new_coord;
 
@@ -61,13 +61,33 @@ void draw_game_screen (bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH], Stats 
     addstr(level_placeholder);
 }
 
+void draw_tetromino(Coord playfield_yx_start, Tetromino *tetromino) {
+    /* Takes the Coordinates of the top-left corner of the playfield
+     * and a tetromino object. Draws the tetromino with ncurses.  */
+    for (int block = 0; block < NUM_BLOCKS; block++) {
+        mvaddch(playfield_yx_start.y + tetromino->blocks_yx[block].y, 
+                tetromino->blocks_yx[block].x, '#');
+    }
+}
 
-int main (int argc, char *argv[]) {
-
+// A couple of curses wrappers
+void init_curses (void) {
     initscr();
     noecho();
     cbreak();
     curs_set(0);
+}
+
+void uninit_curses (void) {
+    echo();
+    nocbreak();
+    curs_set(1);
+    endwin();
+}
+
+int main (int argc, char *argv[]) {
+
+    init_curses();
 
     bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH] = {false};
     Stats stats;
@@ -75,29 +95,25 @@ int main (int argc, char *argv[]) {
     stats.score = 0;
     stats.level = 1;
     // To-Do: Main loop w/ animated frames.
+    // To-Do: Drop zone and falling tetrominos.
 
+    // Test of tetromino objects
     Coord playfield_yx_start = get_game_screen_starting_yx();
-    //Tetromino testing = tetromino_constructor(SQUARE, playfield_yx_start.x + 2);
-    //Tetromino testing = tetromino_constructor(STRAIGHT, playfield_yx_start.x + 2);
-    //Tetromino testing = tetromino_constructor(SKEW_A, playfield_yx_start.x + 2);
-    //Tetromino testing = tetromino_constructor(SKEW_B, playfield_yx_start.x + 2);
-    Tetromino testing = tetromino_constructor(L_A, playfield_yx_start.x + 2);
-    //Tetromino testing = tetromino_constructor(L_B, playfield_yx_start.x + 2);
-    //Tetromino testing = tetromino_constructor(T, playfield_yx_start.x + 2);
+    int test_topleft_x = playfield_yx_start.x + 2;
+    for (int test = 0; test < 7; test++) {
+        erase();
 
-    draw_game_screen(playfield, &stats);
+        Tetromino testing = tetromino_constructor(test, test_topleft_x);
 
-    //draw test tetromino
-    for (int block = 0; block < NUM_BLOCKS; block++) {
-        mvaddch(testing.blocks_yx[block].y, testing.blocks_yx[block].x, '#');
+        draw_game_screen(playfield, &stats);
+
+        draw_tetromino(playfield_yx_start, &testing);
+
+        getch();
     }
+    // End test
 
-    getch();
-
-    echo();
-    nocbreak();
-    curs_set(1);
-    endwin();
+    uninit_curses();
 
     return 0;    
 }
