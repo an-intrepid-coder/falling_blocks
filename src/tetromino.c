@@ -90,24 +90,38 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x) {
     return new_tetromino;
 }
 
-
-bool tetromino_can_fall(Tetromino *tetromino) {
+bool tetromino_can_fall (Tetromino *tetromino,
+                         bool playfield[][PLAYFIELD_WIDTH]) {
     for (int block = 0; block < NUM_BLOCKS; block++) {
-        if (tetromino->blocks_yx[block].y >= (PLAYFIELD_HEIGHT - 1)) {
+        int y = tetromino->blocks_yx[block].y;
+        int x = tetromino->blocks_yx[block].x;
+        if (y >= (PLAYFIELD_HEIGHT - 1)) {
             return false;
-        }
+        } /*else if (playfield[y + 1][x]) {
+            // BOOKMARK: This section of code not working.
+            return false;
+        } */
     }
     return true;
 }
 
-bool tetromino_drop (Tetromino *tetromino) {
-    if (tetromino_can_fall(tetromino)) {
+bool tetromino_drop (Tetromino *tetromino,
+                     bool playfield[][PLAYFIELD_WIDTH]) {
+    if (tetromino_can_fall(tetromino, playfield)) {
         for (int block = 0; block < NUM_BLOCKS; block++) {
             tetromino->blocks_yx[block].y += 1;
         }
         return true;
     }
     return false;
+}
+
+// BOOKMARK: this function not currently working.
+void freeze_tetromino (Tetromino *tetromino,
+                       bool playfield[][PLAYFIELD_WIDTH]) {
+    for (int block = 0; block < NUM_BLOCKS; block++) {
+        playfield[tetromino->blocks_yx[block].y][tetromino->blocks_yx[block].x] = true;
+    }
 }
 
 // TO-DO: Rotation

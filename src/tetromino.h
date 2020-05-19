@@ -15,7 +15,13 @@ typedef struct {
 } Tetromino;
 
 Tetromino tetromino_constructor (int tetromino_type, int topleft_x);
-bool tetromino_drop (Tetromino *tetromino);
-bool tetromino_can_fall(Tetromino *tetromino);
+bool tetromino_drop (Tetromino *tetromino,
+                     bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH]);
+bool tetromino_can_fall(Tetromino *tetromino,
+                        bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH]);
+bool tetromino_would_collide(Tetromino *tetromino, 
+                             bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH]);
+void freeze_tetromino (Tetromino *tetromino,
+                       bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH]);
 
 #endif

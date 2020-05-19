@@ -15,11 +15,12 @@ typedef struct {
     /* A struct to keep track of game statistics. Passes some to the hud display.  */
     char *name;
     long long int score;
+    long long int ticks;
     int level; 
 } Stats;
 
 bool game_fits_screen ();
-void draw_game_screen (bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH], Stats *stats);
+void draw_game_screen (bool playfield[][PLAYFIELD_WIDTH], Stats *stats);
 void draw_tetromino(Coord playfield_yx_start, Tetromino *tetromino);
 Coord get_game_screen_starting_yx (void);
 void init_curses (void);

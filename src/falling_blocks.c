@@ -51,15 +51,19 @@ void draw_game_screen (bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH], Stats 
 
     int hud_x = starting_yx.x + (PLAYFIELD_WIDTH + 2);
     char label_score[] = "Score: ";
-    char score_placeholder[] = "99"; // Replace with function shortly
+    char score_placeholder[] = "99";      // Replace with function shortly
     char label_level[] = "Level: ";
-    char level_placeholder[] = "1"; // Replace with same function as above shortly
+    char level_placeholder[] = "1";       // Replace with same function as above shortly
+    char label_ticks[] = "Ticks: ";
+    char ticks_placeholder[] = "0";       // Replace with same function as above shortly
 
     mvaddstr(starting_yx.y, hud_x, stats->name);
     mvaddstr(starting_yx.y + 1, hud_x, label_score);
     addstr(score_placeholder);
     mvaddstr(starting_yx.y + 2, hud_x, label_level);
     addstr(level_placeholder);
+    mvaddstr(starting_yx.y + 3, hud_x, label_ticks);
+    addstr(ticks_placeholder);
 }
 
 void draw_tetromino(Coord playfield_yx_start, Tetromino *tetromino) {
@@ -92,13 +96,15 @@ int main (int argc, char *argv[]) {
 
     init_curses();
 
+    // true = filled cell | false = empty cell
     bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH] = {false};
+
     Stats stats;
     stats.name = "Player";
     stats.score = 0;
     stats.level = 1;
+    stats.ticks = 0;
     // To-Do: Main loop w/ animated frames.
-    // To-Do: Drop zone and falling tetrominos.
 
     for (;;) {
         // Test of tetromino objects
@@ -114,11 +120,14 @@ int main (int argc, char *argv[]) {
         draw_tetromino(playfield_yx_start, &testing);
 
         for (;;) {
+            draw_game_screen(playfield, &stats);
+            draw_tetromino(playfield_yx_start, &testing);
             getch();
-            if(tetromino_drop(&testing)){
-                draw_game_screen(playfield, &stats);
-                draw_tetromino(playfield_yx_start, &testing);
-            } else {
+            stats.ticks += 1;
+            if(!tetromino_drop(&testing, playfield)){
+                mvaddstr(0, 0, "test");
+                freeze_tetromino(&testing, playfield);
+                getch();
                 break; 
             }
         }
