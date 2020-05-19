@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "falling_blocks.h"
 #include "tetromino.c"
@@ -87,6 +88,8 @@ void uninit_curses (void) {
 
 int main (int argc, char *argv[]) {
 
+    srand((unsigned) time(NULL));
+
     init_curses();
 
     bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH] = {false};
@@ -97,20 +100,30 @@ int main (int argc, char *argv[]) {
     // To-Do: Main loop w/ animated frames.
     // To-Do: Drop zone and falling tetrominos.
 
-    // Test of tetromino objects
-    Coord playfield_yx_start = get_game_screen_starting_yx();
-    int test_topleft_x = playfield_yx_start.x + 2;
-    for (int test = 0; test < 7; test++) {
+    for (;;) {
+        // Test of tetromino objects
+        Coord playfield_yx_start = get_game_screen_starting_yx();
+        int test_topleft_x = playfield_yx_start.x + (rand() % 7);
+        int test_tetromino_type = rand() % 7;
+
         erase();
 
-        Tetromino testing = tetromino_constructor(test, test_topleft_x);
+        Tetromino testing = tetromino_constructor(test_tetromino_type, test_topleft_x);
 
         draw_game_screen(playfield, &stats);
-
         draw_tetromino(playfield_yx_start, &testing);
 
-        getch();
+        for (;;) {
+            getch();
+            if(tetromino_drop(&testing)){
+                draw_game_screen(playfield, &stats);
+                draw_tetromino(playfield_yx_start, &testing);
+            } else {
+                break; 
+            }
+        }
     }
+
     // End test
 
     uninit_curses();

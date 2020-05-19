@@ -15,5 +15,7 @@ typedef struct {
 } Tetromino;
 
 Tetromino tetromino_constructor (int tetromino_type, int topleft_x);
+bool tetromino_drop (Tetromino *tetromino);
+bool tetromino_can_fall(Tetromino *tetromino);
 
 #endif

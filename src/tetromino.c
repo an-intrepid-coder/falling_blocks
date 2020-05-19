@@ -90,4 +90,24 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x) {
     return new_tetromino;
 }
 
+
+bool tetromino_can_fall(Tetromino *tetromino) {
+    for (int block = 0; block < NUM_BLOCKS; block++) {
+        if (tetromino->blocks_yx[block].y >= (PLAYFIELD_HEIGHT - 1)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool tetromino_drop (Tetromino *tetromino) {
+    if (tetromino_can_fall(tetromino)) {
+        for (int block = 0; block < NUM_BLOCKS; block++) {
+            tetromino->blocks_yx[block].y += 1;
+        }
+        return true;
+    }
+    return false;
+}
+
 // TO-DO: Rotation
