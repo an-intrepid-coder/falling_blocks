@@ -1,6 +1,7 @@
 #include "tetromino.h"
 
-Tetromino tetromino_constructor (int tetromino_type, int topleft_x) {
+Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
+                                 bool playfield[][PLAYFIELD_WIDTH]) {
     /* constructor for the tetromino object. Takes a type from 0-6 and an x-coordinate
      * between 0-8.  */
     Tetromino new_tetromino;
@@ -87,41 +88,13 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x) {
         break;
     }
 
+    for (int block = 0; block < NUM_BLOCKS; block++) {
+        int y = new_tetromino.blocks_yx[block].y;
+        int x = new_tetromino.blocks_yx[block].x;
+        playfield[y][x] = true;
+    }
+
     return new_tetromino;
-}
-
-bool tetromino_can_fall (Tetromino *tetromino,
-                         bool playfield[][PLAYFIELD_WIDTH]) {
-    for (int block = 0; block < NUM_BLOCKS; block++) {
-        int y = tetromino->blocks_yx[block].y;
-        int x = tetromino->blocks_yx[block].x;
-        if (y >= (PLAYFIELD_HEIGHT - 1)) {
-            return false;
-        } /*else if (playfield[y + 1][x]) {
-            // BOOKMARK: This section of code not working.
-            return false;
-        } */
-    }
-    return true;
-}
-
-bool tetromino_drop (Tetromino *tetromino,
-                     bool playfield[][PLAYFIELD_WIDTH]) {
-    if (tetromino_can_fall(tetromino, playfield)) {
-        for (int block = 0; block < NUM_BLOCKS; block++) {
-            tetromino->blocks_yx[block].y += 1;
-        }
-        return true;
-    }
-    return false;
-}
-
-// BOOKMARK: this function not currently working.
-void freeze_tetromino (Tetromino *tetromino,
-                       bool playfield[][PLAYFIELD_WIDTH]) {
-    for (int block = 0; block < NUM_BLOCKS; block++) {
-        playfield[tetromino->blocks_yx[block].y][tetromino->blocks_yx[block].x] = true;
-    }
 }
 
 // TO-DO: Rotation

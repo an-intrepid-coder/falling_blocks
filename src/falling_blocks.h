@@ -8,6 +8,8 @@
 #define PLAYFIELD_HEIGHT 24
 #define PLAYFIELD_WIDTH 10
 
+#define NUM_MAX_TETROMINOS 100
+
 #include "coord.h"
 #include "tetromino.h"
 
@@ -21,8 +23,7 @@ typedef struct {
 
 bool game_fits_screen ();
 void draw_game_screen (bool playfield[][PLAYFIELD_WIDTH], Stats *stats);
-void draw_tetromino(Coord playfield_yx_start, Tetromino *tetromino);
-Coord get_game_screen_starting_yx (void);
+Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);
 

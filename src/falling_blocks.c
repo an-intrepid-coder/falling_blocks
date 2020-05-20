@@ -23,7 +23,7 @@ bool game_fits_screen (void) {
     return false;
 }
 
-Coord get_game_screen_starting_yx (void) {
+Coord get_playfield_starting_yx (void) {
     /* takes pointers to two integers and returns the coordinates as an object.  */
     Coord new_coord;
 
@@ -35,10 +35,10 @@ Coord get_game_screen_starting_yx (void) {
     return new_coord;
 }
 
-void draw_game_screen (bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH], Stats *stats) {
+void draw_playfield (bool playfield[][PLAYFIELD_WIDTH]) {
     /* Takes the playfield array and the stats struct. Displays the results using
      * ncurses.  */
-    Coord starting_yx = get_game_screen_starting_yx();
+    Coord starting_yx = get_playfield_starting_yx();
     for (int y = 0; y < PLAYFIELD_HEIGHT; y++) {
         for (int x = 0; x < PLAYFIELD_WIDTH; x++) {
             if (playfield[y][x]) {
@@ -47,31 +47,6 @@ void draw_game_screen (bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH], Stats 
                 mvaddch(starting_yx.y + y, starting_yx.x + x, '.');
             }
         }
-    }
-
-    int hud_x = starting_yx.x + (PLAYFIELD_WIDTH + 2);
-    char label_score[] = "Score: ";
-    char score_placeholder[] = "99";      // Replace with function shortly
-    char label_level[] = "Level: ";
-    char level_placeholder[] = "1";       // Replace with same function as above shortly
-    char label_ticks[] = "Ticks: ";
-    char ticks_placeholder[] = "0";       // Replace with same function as above shortly
-
-    mvaddstr(starting_yx.y, hud_x, stats->name);
-    mvaddstr(starting_yx.y + 1, hud_x, label_score);
-    addstr(score_placeholder);
-    mvaddstr(starting_yx.y + 2, hud_x, label_level);
-    addstr(level_placeholder);
-    mvaddstr(starting_yx.y + 3, hud_x, label_ticks);
-    addstr(ticks_placeholder);
-}
-
-void draw_tetromino(Coord playfield_yx_start, Tetromino *tetromino) {
-    /* Takes the Coordinates of the top-left corner of the playfield
-     * and a tetromino object. Draws the tetromino with ncurses.  */
-    for (int block = 0; block < NUM_BLOCKS; block++) {
-        mvaddch(playfield_yx_start.y + tetromino->blocks_yx[block].y, 
-                tetromino->blocks_yx[block].x, '#');
     }
 }
 
@@ -104,32 +79,23 @@ int main (int argc, char *argv[]) {
     stats.score = 0;
     stats.level = 1;
     stats.ticks = 0;
-    // To-Do: Main loop w/ animated frames.
+    // To-Do: Main loop w/ non-blocking I/O and constant framerate.
 
     for (;;) {
         // Test of tetromino objects
-        Coord playfield_yx_start = get_game_screen_starting_yx();
-        int test_topleft_x = playfield_yx_start.x + (rand() % 7);
+        int test_topleft_x = rand() % 7;
         int test_tetromino_type = rand() % 7;
 
         erase();
 
-        Tetromino testing = tetromino_constructor(test_tetromino_type, test_topleft_x);
-
-        draw_game_screen(playfield, &stats);
-        draw_tetromino(playfield_yx_start, &testing);
+        Tetromino testing = tetromino_constructor(test_tetromino_type, test_topleft_x, 
+                                                  playfield);
 
         for (;;) {
-            draw_game_screen(playfield, &stats);
-            draw_tetromino(playfield_yx_start, &testing);
+            draw_playfield(playfield);
+            //draw_tetromino(playfield_yx_start, &testing);
             getch();
             stats.ticks += 1;
-            if(!tetromino_drop(&testing, playfield)){
-                mvaddstr(0, 0, "test");
-                freeze_tetromino(&testing, playfield);
-                getch();
-                break; 
-            }
         }
     }
 
