@@ -16,7 +16,8 @@ typedef struct {
 } Tetromino;
 
 Tetromino tetromino_constructor (int tetromino_type, int topleft_x, Playfield *playfield);
-bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir);
-void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir);
+bool tetromino_can_move (Tetromino *tetromino, Playfield *playfield, int mvdir);
+void tetromino_move (Tetromino *tetromino, Playfield *playfield, int mvdir);
+void tetromino_freeze (Tetromino *tetromino, Playfield *playfield);
 
 #endif

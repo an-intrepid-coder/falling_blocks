@@ -10,7 +10,7 @@
 
 /* TO-DO:
 
-    1. String parsing.
+    1. String parsing for labels.
 
 */
 
@@ -66,6 +66,26 @@ void uninit_curses (void) {
     endwin();
 }
 
+int get_mvdir (void) {
+    /* Reads user input and returns an enum.  */
+    int input = getch();
+    switch (input) {
+        case 83:
+        case 115:
+            return DOWN;
+        break;
+        case 65:
+        case 97:
+            return LEFT;
+        break;
+        case 68:
+        case 100:
+            return RIGHT;
+        break;
+    }
+    return NONE;
+}
+
 int main (int argc, char *argv[]) {
 
     srand((unsigned) time(NULL));
@@ -74,12 +94,6 @@ int main (int argc, char *argv[]) {
 
     Playfield playfield = playfield_constructor();
 
-    /* Planning on using these pointers to keep track of the tetromino objects. There should
-     * only ever be two at a time. The rest will "freeze" to the playfield when they are
-     * no longer active. next_piece will eventually hold a queue instead of just a single
-     * piece so that it can be more controlled.  */
-    Tetromino *active_piece = NULL;
-    Tetromino *next_piece = NULL; 
     // To-Do: Main loop w/ non-blocking I/O and constant framerate.
 
     for (;;) {
@@ -89,13 +103,18 @@ int main (int argc, char *argv[]) {
 
         Tetromino testing = tetromino_constructor(test_tetromino_type, test_topleft_x, 
                                                   &playfield);
-        active_piece = &testing;
 
         for (;;) {
             erase();
             draw_playfield(&playfield);
-            getch();
-            tetromino_move(&testing, &playfield, DOWN);
+            tetromino_move(&testing, &playfield, get_mvdir());
+            if (!tetromino_can_move(&testing, &playfield, DOWN)) {
+                tetromino_freeze(&testing, &playfield);
+                test_topleft_x = rand() % 7;
+                test_tetromino_type = rand() % 7;
+                testing = tetromino_constructor(test_tetromino_type, test_topleft_x,
+                                                &playfield);
+            }
         }
     }
 

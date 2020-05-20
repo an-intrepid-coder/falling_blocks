@@ -12,7 +12,7 @@
 #include "tetromino.h"
 #include "playfield.h"
 
-typedef enum {DOWN, LEFT, RIGHT} Movement_Dirs;
+typedef enum {NONE, DOWN, LEFT, RIGHT} Movement_Dirs;
 
 typedef struct {
     /* A struct to keep track of game statistics. Passes some to the hud display.  */
@@ -23,9 +23,10 @@ typedef struct {
 } Stats;
 
 bool game_fits_screen ();
-void draw_game_screen (bool playfield[][PLAYFIELD_WIDTH], Stats *stats);
+void draw_playfield (Playfield *playfield);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);
+int get_mvdir();
 
 #endif

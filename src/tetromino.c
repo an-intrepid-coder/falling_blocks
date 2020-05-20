@@ -92,6 +92,7 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
         int y = new_tetromino.blocks_yx[block].y;
         int x = new_tetromino.blocks_yx[block].x;
         playfield->cell_filled[y][x] = true;
+        playfield->active_tetromino[y][x] = true;
     }
 
     return new_tetromino;
@@ -105,7 +106,7 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
                 if (tetromino->blocks_yx[block].y >= (PLAYFIELD_HEIGHT - 1)) {
                     return false;
                 } else if (playfield->cell_filled[tetromino->blocks_yx[block].y + 1]
-                                                  [tetromino->blocks_yx[block].x] &&
+                                                 [tetromino->blocks_yx[block].x] &&
                            !playfield->active_tetromino[tetromino->blocks_yx[block].y + 1] 
                                                        [tetromino->blocks_yx[block].x]) {
                     return false;
@@ -114,7 +115,7 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
         break;
         case LEFT:
             for (int block = 0; block < NUM_BLOCKS; block++) {
-                if (tetromino->blocks_yx[block].y <= 0) {
+                if (tetromino->blocks_yx[block].x <= 0) {
                     return false;
                 } else if (playfield->cell_filled[tetromino->blocks_yx[block].y]
                                                  [tetromino->blocks_yx[block].x - 1] &&
@@ -126,7 +127,7 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
         break;
         case RIGHT:
             for (int block = 0; block < NUM_BLOCKS; block++) {
-                if (tetromino->blocks_yx[block].y >= (PLAYFIELD_WIDTH - 1)) {
+                if (tetromino->blocks_yx[block].x >= (PLAYFIELD_WIDTH - 1)) {
                     return false;
                 } else if (playfield->cell_filled[tetromino->blocks_yx[block].y]
                                                  [tetromino->blocks_yx[block].x + 1] &&
@@ -136,6 +137,8 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
                 }
             }
         break;
+        case NONE:
+            return false;
         default:
         break;
     }
@@ -146,7 +149,7 @@ void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
     if (tetromino_can_move(tetromino, playfield, mvdir)) {
         for (int block = 0; block < NUM_BLOCKS; block++) {
             playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                   [tetromino->blocks_yx[block].x] = false;
+                                  [tetromino->blocks_yx[block].x] = false;
             playfield->active_tetromino[tetromino->blocks_yx[block].y]
                                        [tetromino->blocks_yx[block].x] = false;
         }
@@ -171,10 +174,18 @@ void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
         }
         for (int block = 0; block < NUM_BLOCKS; block++) {
             playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                   [tetromino->blocks_yx[block].x] = true;
+                                  [tetromino->blocks_yx[block].x] = true;
             playfield->active_tetromino[tetromino->blocks_yx[block].y]
                                        [tetromino->blocks_yx[block].x] = true;
         }
+    }
+}
+
+void tetromino_freeze (Tetromino *tetromino, Playfield *playfield) {
+    /* "freezes" the tetromino in place by deactivating it on the playfield.  */
+    for (int block = 0; block < NUM_BLOCKS; block++) {
+        playfield->active_tetromino[tetromino->blocks_yx[block].y]
+                                   [tetromino->blocks_yx[block].x] = false;
     }
 }
 
