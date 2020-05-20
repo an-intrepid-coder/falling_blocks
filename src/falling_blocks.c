@@ -6,6 +6,7 @@
 #include "falling_blocks.h"
 #include "tetromino.c"
 #include "coord.c"
+#include "playfield.c"
 
 /* TO-DO:
 
@@ -35,13 +36,13 @@ Coord get_playfield_starting_yx (void) {
     return new_coord;
 }
 
-void draw_playfield (bool playfield[][PLAYFIELD_WIDTH]) {
+void draw_playfield (Playfield *playfield) {
     /* Takes the playfield array and the stats struct. Displays the results using
      * ncurses.  */
     Coord starting_yx = get_playfield_starting_yx();
     for (int y = 0; y < PLAYFIELD_HEIGHT; y++) {
         for (int x = 0; x < PLAYFIELD_WIDTH; x++) {
-            if (playfield[y][x]) {
+            if (playfield->cell_filled[y][x]) {
                 mvaddch(starting_yx.y + y, starting_yx.x + x, '#');
             } else {
                 mvaddch(starting_yx.y + y, starting_yx.x + x, '.');
@@ -71,14 +72,14 @@ int main (int argc, char *argv[]) {
 
     init_curses();
 
-    // true = filled cell | false = empty cell
-    bool playfield[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH] = {false};
+    Playfield playfield = playfield_constructor();
 
-    Stats stats;
-    stats.name = "Player";
-    stats.score = 0;
-    stats.level = 1;
-    stats.ticks = 0;
+    /* Planning on using these pointers to keep track of the tetromino objects. There should
+     * only ever be two at a time. The rest will "freeze" to the playfield when they are
+     * no longer active. next_piece will eventually hold a queue instead of just a single
+     * piece so that it can be more controlled.  */
+    Tetromino *active_piece = NULL;
+    Tetromino *next_piece = NULL; 
     // To-Do: Main loop w/ non-blocking I/O and constant framerate.
 
     for (;;) {
@@ -86,16 +87,15 @@ int main (int argc, char *argv[]) {
         int test_topleft_x = rand() % 7;
         int test_tetromino_type = rand() % 7;
 
-        erase();
-
         Tetromino testing = tetromino_constructor(test_tetromino_type, test_topleft_x, 
-                                                  playfield);
+                                                  &playfield);
+        active_piece = &testing;
 
         for (;;) {
-            draw_playfield(playfield);
-            //draw_tetromino(playfield_yx_start, &testing);
+            erase();
+            draw_playfield(&playfield);
             getch();
-            stats.ticks += 1;
+            tetromino_move(&testing, &playfield, DOWN);
         }
     }
 

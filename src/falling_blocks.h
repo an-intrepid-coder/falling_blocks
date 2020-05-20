@@ -5,13 +5,14 @@
 #define GAME_SCREEN_WIDTH 24
 #define HUD_HEIGHT 24
 #define HUD_WIDTH 14
-#define PLAYFIELD_HEIGHT 24
-#define PLAYFIELD_WIDTH 10
 
 #define NUM_MAX_TETROMINOS 100
 
 #include "coord.h"
 #include "tetromino.h"
+#include "playfield.h"
+
+typedef enum {DOWN, LEFT, RIGHT} Movement_Dirs;
 
 typedef struct {
     /* A struct to keep track of game statistics. Passes some to the hud display.  */
