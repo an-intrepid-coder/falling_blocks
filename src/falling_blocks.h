@@ -12,8 +12,6 @@
 #include "tetromino.h"
 #include "playfield.h"
 
-typedef enum {NONE, DOWN, LEFT, RIGHT} Movement_Dirs;
-
 typedef struct {
     /* A struct to keep track of game statistics. Passes some to the hud display.  */
     char *name;
