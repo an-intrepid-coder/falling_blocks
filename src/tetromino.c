@@ -149,11 +149,15 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
 
 void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
     if (tetromino_can_move(tetromino, playfield, mvdir)) {
+        /* REFACTOR NOTE: This for-loop and its companion at the end of the function are prime 
+         *                candidates for later refactoring.  */
         for (int block = 0; block < NUM_BLOCKS; block++) {
-            playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                  [tetromino->blocks_yx[block].x] = false;
-            playfield->active_tetromino[tetromino->blocks_yx[block].y]
-                                       [tetromino->blocks_yx[block].x] = false;
+            if (tetromino->blocks_yx[block].y >= 0) {
+                playfield->cell_filled[tetromino->blocks_yx[block].y]
+                                      [tetromino->blocks_yx[block].x] = false;
+                playfield->active_tetromino[tetromino->blocks_yx[block].y]
+                                           [tetromino->blocks_yx[block].x] = false;
+            }
         }
         switch (mvdir) {
             case DOWN:
@@ -171,14 +175,19 @@ void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
                     tetromino->blocks_yx[block].x += 1;
                 }
             break;
+            case ROTATE:
+                tetromino_rotate(tetromino, playfield);
+            break;
             default:
             break;
         }
         for (int block = 0; block < NUM_BLOCKS; block++) {
-            playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                  [tetromino->blocks_yx[block].x] = true;
-            playfield->active_tetromino[tetromino->blocks_yx[block].y]
-                                       [tetromino->blocks_yx[block].x] = true;
+            if (tetromino->blocks_yx[block].y >= 0) {
+                playfield->cell_filled[tetromino->blocks_yx[block].y]
+                                      [tetromino->blocks_yx[block].x] = true;
+                playfield->active_tetromino[tetromino->blocks_yx[block].y]
+                                           [tetromino->blocks_yx[block].x] = true;
+            }
         }
     }
 }
@@ -525,7 +534,7 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                    Return true if relative (0, 0) and (-1, 0) cells are clear.
              * Configuration 4: 
                    Return true if relative (1, 1) and (0, 2) cells are clear.  */
-            switch (tetromino->tetromino->configuration) {
+            switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 > 0) {
                         if (playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
@@ -596,9 +605,234 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
 }
 
 void tetromino_rotate (Tetromino *tetromino, Playfield *playfield) {
-    /* Will destroy/rebuild tetromino objects to give the appearance of "rotation"
-     * either clockwise or counter-clockwise.  */
+    /* Will destroy/rebuild tetromino objects to give the appearance of clockwise rotation.
+     * State-changes will be relative to a block that does not move, but sometimes the
+     * non-moving block will "switch indexes" with another block because the indexing scheme
+     * is pretty arbitrary and should be refactored to specifically take advantage of 
+     * blocks whose coordinates don't change during rotation.  */
     if (tetromino_can_rotate(tetromino, playfield)) {
-        // do stuff
+        /* REFACTOR NOTE: This for-loop and its companion at the end of the function are prime 
+         *                candidates for later refactoring.  */
+        switch (tetromino->tetromino_type) {
+            case STRAIGHT:
+                switch (tetromino->tetromino_configuration) {
+                    case FIRST:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 3;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y - 2;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x;
+                        tetromino->tetromino_configuration = SECOND;
+                    break;
+                    case SECOND:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[3].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[3].x + 1;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[3].x + 2;
+                        tetromino->tetromino_configuration = FIRST;
+                    break;
+                }
+            break;
+            case SQUARE:
+                // Square shape does not require anything here.
+            break;
+            case SKEW_A:
+                switch (tetromino->tetromino_configuration) {
+                    case FIRST:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[3].y - 2;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[3].y - 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[3].y - 1;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[3].x;
+                        tetromino->tetromino_configuration = SECOND;
+                    break;
+                    case SECOND:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[3].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[3].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[3].y - 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[3].x + 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->tetromino_configuration = FIRST;
+                    break;
+                }
+            break;
+            case SKEW_B:
+                switch (tetromino->tetromino_configuration) {
+                    case FIRST:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x - 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x - 1;
+                        tetromino->tetromino_configuration = SECOND;
+                    break;
+                    case SECOND:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[2].y;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[2].x - 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[2].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[2].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[2].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[2].x + 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[2].y + 1;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[2].x;
+                        tetromino->tetromino_configuration = FIRST;
+                    break;
+                }
+            break;
+            case L_A:
+                switch (tetromino->tetromino_configuration) {
+                    case FIRST:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 2;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x + 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x;
+                        tetromino->tetromino_configuration = SECOND;
+                    break;
+                    case SECOND:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x + 2;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x + 1;
+                        tetromino->tetromino_configuration = THIRD;
+                    break;
+                    case THIRD:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x - 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x;
+                        tetromino->tetromino_configuration = FOURTH;
+                    break;
+                    case FOURTH:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[3].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[3].x + 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[3].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[3].x + 1;
+                        tetromino->tetromino_configuration = FIRST;
+                    break;
+                }
+            break;
+            case L_B:
+                switch (tetromino->tetromino_configuration) {
+                    case FIRST:
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[0].y - 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[0].x + 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[0].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[0].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[0].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[0].x;
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[0].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[0].x;
+                        tetromino->tetromino_configuration = SECOND;
+                    break;
+                    case SECOND:
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[2].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[2].x + 1;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[2].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[2].x + 2;
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[2].y;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[2].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[2].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[2].x + 2;
+                        tetromino->tetromino_configuration = THIRD;
+                    break;
+                    case THIRD:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x - 1;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x;
+                        tetromino->tetromino_configuration = FOURTH;
+                    break;
+                    case FOURTH:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[3].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[3].x - 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[3].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[3].y;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[3].x + 1;
+                        tetromino->tetromino_configuration = FIRST;
+                    break;
+                }
+            break;
+            case T:
+                switch (tetromino->tetromino_configuration) {
+                    case FIRST:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x - 1;
+                        tetromino->tetromino_configuration = SECOND;
+                    break;
+                    case SECOND:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[2].y;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[2].x;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[2].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[2].x + 1;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[2].y + 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[2].x - 1;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[2].y + 1;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[2].x;
+                        tetromino->tetromino_configuration = THIRD;
+                    break;
+                    case THIRD:
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y - 2;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x + 1;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y - 1;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x;
+                        tetromino->tetromino_configuration = FOURTH;
+                    break;
+                    case FOURTH:
+                        tetromino->blocks_yx[2].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[2].x = tetromino->blocks_yx[1].x + 2;
+                        tetromino->blocks_yx[3].y = tetromino->blocks_yx[1].y + 1;
+                        tetromino->blocks_yx[3].x = tetromino->blocks_yx[1].x + 1;
+                        tetromino->blocks_yx[0].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[0].x = tetromino->blocks_yx[1].x;
+                        tetromino->blocks_yx[1].y = tetromino->blocks_yx[1].y;
+                        tetromino->blocks_yx[1].x = tetromino->blocks_yx[1].x + 1;
+                        tetromino->tetromino_configuration = FIRST;
+                    break;
+                }
+            break;
+        }
     }
 }

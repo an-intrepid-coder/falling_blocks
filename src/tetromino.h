@@ -8,8 +8,6 @@
 
 // The seven tetromino types represented as enums from 0-6.
 typedef enum {SQUARE, STRAIGHT, SKEW_A, SKEW_B, L_A, L_B, T} Tetromino_Types;
-// Tetromino movement directions
-typedef enum {NONE, DOWN, LEFT, RIGHT} Movement_Dirs;
 // Tetromino configurations:
 typedef enum {FIRST, SECOND, THIRD, FOURTH} Tetromino_Configurations;
 

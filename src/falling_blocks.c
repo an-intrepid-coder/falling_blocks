@@ -66,24 +66,28 @@ void uninit_curses (void) {
     endwin();
 }
 
-int get_mvdir (void) {
+int get_input (void) {
     /* Reads user input and returns an enum.  */
     int input = getch();
+    int return_value = NONE;
     switch (input) {
         case 83:
         case 115:
-            return DOWN;
+            return_value = DOWN;
         break;
         case 65:
         case 97:
-            return LEFT;
+            return_value = LEFT;
         break;
         case 68:
         case 100:
-            return RIGHT;
+            return_value = RIGHT;
+        break;
+        default:
+            return_value = ROTATE;
         break;
     }
-    return NONE;
+    return return_value;
 }
 
 int main (int argc, char *argv[]) {
@@ -107,7 +111,7 @@ int main (int argc, char *argv[]) {
         for (;;) {
             erase();
             draw_playfield(&playfield);
-            tetromino_move(&testing, &playfield, get_mvdir());
+            tetromino_move(&testing, &playfield, get_input());
             if (!tetromino_can_move(&testing, &playfield, DOWN)) {
                 tetromino_freeze(&testing, &playfield);
                 test_topleft_x = rand() % 7;

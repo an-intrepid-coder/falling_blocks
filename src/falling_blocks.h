@@ -12,6 +12,9 @@
 #include "tetromino.h"
 #include "playfield.h"
 
+// Tetromino input enum 
+typedef enum {NONE, DOWN, LEFT, RIGHT, ROTATE} Input_Types;
+
 typedef struct {
     /* A struct to keep track of game statistics. Passes some to the hud display.  */
     char *name;
@@ -25,6 +28,6 @@ void draw_playfield (Playfield *playfield);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);
-int get_mvdir();
+int get_input();
 
 #endif
