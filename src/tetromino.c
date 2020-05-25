@@ -100,7 +100,7 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
 }
 
 bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
-    /* Needs to check if at bottom of screen OR if would collide  */
+    /* Returns true if the tetromino can move in the indicated direction.  */
     bool return_value = true;
     switch (mvdir) {
         case DOWN:
@@ -206,14 +206,9 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
     /* Returns true or false depending on whether or not the tetromino is able to rotate.  */
     bool return_value = true;
     switch (tetromino->tetromino_type) {
-        /* Note: Using (y, x) format for coordinates because of ncurses.  */
         case SQUARE:
         break;
         case STRAIGHT:
-            /* Configuration 1:
-             *     Return true if relative (0, 1), (-1, 1) & (-2, 1) cells are clear.
-             * Configuration 2:
-             *     Return true if relative (1, 0), (1, 2), & (1, 3) cells are clear.  */
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     for (int block = 0; block < 3; block++) {
@@ -252,10 +247,6 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             }
         break;
         case SKEW_A:
-            /* Configuration 1:
-             *     Return true if relative (0, 0) and (-1, 0) cells are clear.
-             * Configuration 2:
-             *     Return true if relative (1, 0) and (0, 2) cells are clear.  */
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
@@ -297,10 +288,6 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             }
         break;
         case SKEW_B:
-            /* Configuration 1:
-             *     Return true if relative (1, 0) and (-1, 1) cells are clear.
-             * Configuration 2:
-             *     Return true if relative (1, 1) and (1, 2) cells are clear.  */
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
@@ -343,14 +330,6 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
         break;
         case L_B:
             // clockwise only for now
-            /* Configuration 1:
-             *     Return true if relative (-1, 0) and (-1, 1) cells are clear.
-             * Configuration 2:
-             *     Return true if relative (0, 1), (0, 2) & (1, 2) cells are clear.
-             * Configuration 3:
-             *     Return true if relative (1, 0), (1, 1) & (-1, 1) cells are clear.
-             * Configuration 4:
-             *     Return true if relative (0, 0) and (1, 2) cells are clear.  */
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if ((playfield->cell_filled[tetromino->blocks_yx[0].y - 1]
@@ -431,14 +410,6 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
         break;
         case L_A:
             // clockwise only for now
-            /* Configuration 1:
-             *     Return true if relative (0, 0) and (-1, 0) cells are clear.
-             * Configuration 2:
-             *     Return true if relative (0, 1) and (0, 2) cells are clear.
-             * Configuration 3:
-             *     Return true if relative (-1, 0), (-1, 1) & (1, 1) cells are clear.
-             * Configuration 4:
-             *     Return true if relative (1, 0), (1, 2) & (0, 2) cells are clear.  */
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
@@ -526,14 +497,6 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
         break;
         case T:
             // clockwise only for now
-            /* Configuration 1:
-                   Return true if relative (-1, 1) cell is clear.
-             * Configuration 2:
-                   Return true if relative (1, 1) and (1, 2) cells are clear.
-             * Configuration 3:
-                   Return true if relative (0, 0) and (-1, 0) cells are clear.
-             * Configuration 4: 
-                   Return true if relative (1, 1) and (0, 2) cells are clear.  */
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 > 0) {
@@ -611,8 +574,6 @@ void tetromino_rotate (Tetromino *tetromino, Playfield *playfield) {
      * is pretty arbitrary and should be refactored to specifically take advantage of 
      * blocks whose coordinates don't change during rotation.  */
     if (tetromino_can_rotate(tetromino, playfield)) {
-        /* REFACTOR NOTE: This for-loop and its companion at the end of the function are prime 
-         *                candidates for later refactoring.  */
         switch (tetromino->tetromino_type) {
             case STRAIGHT:
                 switch (tetromino->tetromino_configuration) {

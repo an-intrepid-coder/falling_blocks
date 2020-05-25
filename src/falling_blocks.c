@@ -114,6 +114,7 @@ int main (int argc, char *argv[]) {
             tetromino_move(&testing, &playfield, get_input());
             if (!tetromino_can_move(&testing, &playfield, DOWN)) {
                 tetromino_freeze(&testing, &playfield);
+                playfield_clear_lines(&playfield);
                 test_topleft_x = rand() % 7;
                 test_tetromino_type = rand() % 7;
                 testing = tetromino_constructor(test_tetromino_type, test_topleft_x,
