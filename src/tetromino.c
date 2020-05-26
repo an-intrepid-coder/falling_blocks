@@ -139,7 +139,7 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
                 }
             }
         break;
-        case NONE:
+        case DIRECTION_NONE:
             return_value = false;
         default:
         break;

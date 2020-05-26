@@ -1,4 +1,5 @@
 #include "playfield.h"
+#include "stats.h"
 
 Playfield playfield_constructor (void) {
     Playfield new_playfield;
@@ -44,7 +45,7 @@ void playfield_gravity (Playfield *playfield, int cleared_row) {
     }
 }
 
-void playfield_clear_lines (Playfield *playfield) {
+void playfield_clear_lines (Playfield *playfield, Stats *stats) {
     /* Loops through each row of cells on the playfield and
      * clears any filled lines.  */
     for (int row = PLAYFIELD_HEIGHT - 1; row > 0; row--) {
@@ -52,6 +53,7 @@ void playfield_clear_lines (Playfield *playfield) {
             playfield_clear_row(playfield, row);
             playfield_gravity(playfield, row);
             row = PLAYFIELD_HEIGHT;
+            stats_score_up(stats, CLEAR_ROW_SCORE);
         }
     }
 }

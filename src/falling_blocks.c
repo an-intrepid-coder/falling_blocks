@@ -7,6 +7,7 @@
 #include "tetromino.c"
 #include "coord.c"
 #include "playfield.c"
+#include "stats.c"
 
 /* TO-DO:
 
@@ -70,7 +71,7 @@ void uninit_curses (void) {
 
 int convert_input (int input) {
     /* Reads user input and returns an enum.  */
-    int return_value = NONE;
+    int return_value = DIRECTION_NONE;
     switch (input) {
         case 83:
         case 115:
@@ -91,7 +92,7 @@ int convert_input (int input) {
     return return_value;
 }
 
-bool timer_reached (clock_t clock_last, int input_clock_type) {
+bool timer_reached (clock_t clock_last, int input_clock_type, Stats *stats) {
     bool return_value = false;
     double time_difference = (clock() - clock_last) / (double) CLOCKS_PER_SEC;
     switch (input_clock_type) {
@@ -101,7 +102,7 @@ bool timer_reached (clock_t clock_last, int input_clock_type) {
             }
         break;
         case STEP_CLOCK:
-            if (time_difference > STEP_INTERVAL_IN_SECONDS) {
+            if (time_difference > stats->step_interval) {
                 return_value = true;
             }
         break;
@@ -109,8 +110,23 @@ bool timer_reached (clock_t clock_last, int input_clock_type) {
             if (time_difference > USER_INPUT_INTERVAL_IN_SECONDS) {
                 return_value = true;
             }
+        break;
+        case SPLASH_CLOCK:
+            if (time_difference > SPLASH_INTERVAL_IN_SECONDS) {
+                return_value = true;
+            } 
+        break;
     }
     return return_value;
+}
+                    
+void draw_splash(int splash_flag) {
+    /* Rough placeholder for now.  */
+    switch (splash_flag) {
+        case LEVEL_UP:
+            mvaddstr(0, 0, "Level up!");
+        break;
+    }
 }
 
 int main (int argc, char *argv[]) {
@@ -125,6 +141,8 @@ int main (int argc, char *argv[]) {
     init_curses();
 
     Playfield playfield = playfield_constructor();
+    Stats stats = stats_constructor();
+    int splash_flag = FLAG_NONE;
 
     for (;;) {
         int tetromino_topleft_x = rand() % 7;
@@ -135,16 +153,23 @@ int main (int argc, char *argv[]) {
 
         for (;;) {
             int input = getch();
-            if (timer_reached(fps_clock_last, FPS_CLOCK)){
+            if (timer_reached(fps_clock_last, FPS_CLOCK, &stats)){
                 erase();
                 draw_playfield(&playfield);
+                if (splash_flag) {
+                    draw_splash(splash_flag);
+                    if (timer_reached(splash_clock_last, SPLASH_CLOCK, &stats)) {
+                        splash_flag = FLAG_NONE;
+                    }
+                }
                 fps_clock_last = clock();
             }
-            if (timer_reached(step_clock_last, STEP_CLOCK)) {
+            if (timer_reached(step_clock_last, STEP_CLOCK, &stats)) {
                 tetromino_move(&tetromino, &playfield, DOWN);
                 step_clock_last = clock();
+                stats_tick(&stats);
             } else if (input != ERR) {
-                if (timer_reached(user_input_clock_last, USER_INPUT_CLOCK)) {
+                if (timer_reached(user_input_clock_last, USER_INPUT_CLOCK, &stats)) {
                     tetromino_move(&tetromino, &playfield, convert_input(input));
                     user_input_clock_last = clock();
                 }
@@ -152,11 +177,16 @@ int main (int argc, char *argv[]) {
             
             if (!tetromino_can_move(&tetromino, &playfield, DOWN)) {
                 tetromino_freeze(&tetromino, &playfield);
-                playfield_clear_lines(&playfield);
+                playfield_clear_lines(&playfield, &stats);
                 tetromino_topleft_x = rand() % 7;
                 tetromino_type = rand() % 7;
                 tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x,
                                                   &playfield);
+            }
+            if (stats_can_level_up(&stats)) {
+                stats_level_up(&stats);
+                splash_flag = LEVEL_UP;
+                splash_clock_last = clock();
             }
         }
     }
