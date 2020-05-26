@@ -57,18 +57,19 @@ void init_curses (void) {
     noecho();
     cbreak();
     curs_set(0);
+    nodelay(stdscr, true);
 }
 
 void uninit_curses (void) {
     echo();
     nocbreak();
     curs_set(1);
+    nodelay(stdscr, false);
     endwin();
 }
 
-int get_input (void) {
+int convert_input (int input) {
     /* Reads user input and returns an enum.  */
-    int input = getch();
     int return_value = NONE;
     switch (input) {
         case 83:
@@ -90,7 +91,34 @@ int get_input (void) {
     return return_value;
 }
 
+bool timer_reached (clock_t clock_last, int input_clock_type) {
+    bool return_value = false;
+    double time_difference = (clock() - clock_last) / (double) CLOCKS_PER_SEC;
+    switch (input_clock_type) {
+        case FPS_CLOCK:
+            if (time_difference > FRAME_INTERVAL_IN_SECONDS) {
+                return_value = true;
+            }
+        break;
+        case STEP_CLOCK:
+            if (time_difference > STEP_INTERVAL_IN_SECONDS) {
+                return_value = true;
+            }
+        break;
+        case USER_INPUT_CLOCK:
+            if (time_difference > USER_INPUT_INTERVAL_IN_SECONDS) {
+                return_value = true;
+            }
+    }
+    return return_value;
+}
+
 int main (int argc, char *argv[]) {
+
+    clock_t fps_clock_last = clock();
+    clock_t step_clock_last = clock();
+    clock_t user_input_clock_last = clock();
+    clock_t splash_clock_last = clock();
 
     srand((unsigned) time(NULL));
 
@@ -98,32 +126,40 @@ int main (int argc, char *argv[]) {
 
     Playfield playfield = playfield_constructor();
 
-    // To-Do: Main loop w/ non-blocking I/O and constant framerate.
-
     for (;;) {
-        // Test of tetromino objects
-        int test_topleft_x = rand() % 7;
-        int test_tetromino_type = rand() % 7;
+        int tetromino_topleft_x = rand() % 7;
+        int tetromino_type = rand() % 7;
 
-        Tetromino testing = tetromino_constructor(test_tetromino_type, test_topleft_x, 
-                                                  &playfield);
+        Tetromino tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x, 
+                                                    &playfield);
 
         for (;;) {
-            erase();
-            draw_playfield(&playfield);
-            tetromino_move(&testing, &playfield, get_input());
-            if (!tetromino_can_move(&testing, &playfield, DOWN)) {
-                tetromino_freeze(&testing, &playfield);
+            int input = getch();
+            if (timer_reached(fps_clock_last, FPS_CLOCK)){
+                erase();
+                draw_playfield(&playfield);
+                fps_clock_last = clock();
+            }
+            if (timer_reached(step_clock_last, STEP_CLOCK)) {
+                tetromino_move(&tetromino, &playfield, DOWN);
+                step_clock_last = clock();
+            } else if (input != ERR) {
+                if (timer_reached(user_input_clock_last, USER_INPUT_CLOCK)) {
+                    tetromino_move(&tetromino, &playfield, convert_input(input));
+                    user_input_clock_last = clock();
+                }
+            }
+            
+            if (!tetromino_can_move(&tetromino, &playfield, DOWN)) {
+                tetromino_freeze(&tetromino, &playfield);
                 playfield_clear_lines(&playfield);
-                test_topleft_x = rand() % 7;
-                test_tetromino_type = rand() % 7;
-                testing = tetromino_constructor(test_tetromino_type, test_topleft_x,
-                                                &playfield);
+                tetromino_topleft_x = rand() % 7;
+                tetromino_type = rand() % 7;
+                tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x,
+                                                  &playfield);
             }
         }
     }
-
-    // End test
 
     uninit_curses();
 

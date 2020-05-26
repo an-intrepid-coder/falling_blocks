@@ -6,28 +6,27 @@
 #define HUD_HEIGHT 24
 #define HUD_WIDTH 14
 
-#define NUM_MAX_TETROMINOS 100
+#define FRAME_INTERVAL_IN_SECONDS (double) .1
+#define STEP_INTERVAL_IN_SECONDS (double) 1
+#define USER_INPUT_INTERVAL_IN_SECONDS (double) .2
+#define SPLASH_INTERVAL_IN_SECONDS (double) 3
 
+#include <time.h>
 #include "coord.h"
 #include "tetromino.h"
 #include "playfield.h"
 
 // Tetromino input enum 
 typedef enum {NONE, DOWN, LEFT, RIGHT, ROTATE} Input_Types;
-
-typedef struct {
-    /* A struct to keep track of game statistics. Passes some to the hud display.  */
-    char *name;
-    long long int score;
-    long long int ticks;
-    int level; 
-} Stats;
+// Clock types
+typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK, SPLASH_CLOCK} Clock_Types;
 
 bool game_fits_screen ();
 void draw_playfield (Playfield *playfield);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);
-int get_input();
+int convert_input(int input);
+bool timer_reached (clock_t clock_last, int clock_type);
 
 #endif
