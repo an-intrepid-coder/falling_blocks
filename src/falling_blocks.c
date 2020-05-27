@@ -144,19 +144,20 @@ void a_game_of_falling_blocks (void) {
                                                 &playfield);
 
     while (!tetromino.game_over) {
-        int input = getch();
         if (timer_reached(fps_clock_last, FPS_CLOCK, &stats)){
             erase();
             draw_playfield(&playfield);
             draw_hud(&stats);
             fps_clock_last = clock();
+
         }
         if (timer_reached(step_clock_last, STEP_CLOCK, &stats)) {
             tetromino_move(&tetromino, &playfield, DOWN);
             step_clock_last = clock();
             stats_tick(&stats);
-        } else if (input != ERR) {
-            if (timer_reached(user_input_clock_last, USER_INPUT_CLOCK, &stats)) {
+        } else if (timer_reached(user_input_clock_last, USER_INPUT_CLOCK, &stats)){
+            int input = getch();
+            if (input != ERR) {
                 tetromino_move(&tetromino, &playfield, convert_input(input));
                 user_input_clock_last = clock();
             }
