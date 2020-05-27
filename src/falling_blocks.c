@@ -3,8 +3,6 @@
 #include <string.h>
 #include <time.h>
 
-#include <unistd.h>
-
 #include "falling_blocks.h"
 #include "tetromino.c"
 #include "coord.c"
