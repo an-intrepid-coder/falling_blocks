@@ -7,6 +7,7 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
     Tetromino new_tetromino;
     new_tetromino.tetromino_type = tetromino_type;
     new_tetromino.tetromino_configuration = FIRST;
+    new_tetromino.game_over = false;
 
     switch (tetromino_type) {
         /* The blocks are spawned according to a fixed scheme, relative to the "topleft" 
@@ -84,16 +85,17 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
             new_tetromino.blocks_yx[3].y = 1;
             new_tetromino.blocks_yx[3].x = topleft_x + 1;
         break;
-        default:
-            // to-do: Error handling
-        break;
     }
 
     for (int block = 0; block < NUM_BLOCKS; block++) {
         int y = new_tetromino.blocks_yx[block].y;
         int x = new_tetromino.blocks_yx[block].x;
-        playfield->cell_filled[y][x] = true;
-        playfield->active_tetromino[y][x] = true;
+        if (playfield->cell_filled[y][x]) {
+            new_tetromino.game_over = true;
+        } else {
+            playfield->cell_filled[y][x] = true;
+            playfield->active_tetromino[y][x] = true;
+        }
     }
 
     return new_tetromino;

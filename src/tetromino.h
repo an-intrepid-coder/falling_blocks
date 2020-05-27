@@ -15,6 +15,7 @@ typedef struct {
     /* An object representing a tetromino, and the (y, x) coordinates of its 4 blocks.  */
     int tetromino_type;
     int tetromino_configuration;
+    bool game_over;
     Coord blocks_yx[NUM_BLOCKS];
 } Tetromino;
 

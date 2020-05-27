@@ -7,8 +7,9 @@
 #define HUD_WIDTH 14
 
 #define FRAME_INTERVAL_IN_SECONDS (double) .1
-#define USER_INPUT_INTERVAL_IN_SECONDS (double) .2
-#define SPLASH_INTERVAL_IN_SECONDS (double) 3
+#define USER_INPUT_INTERVAL_IN_SECONDS (double) .15
+
+#define SPAWN_LIMIT 7
 
 #include <time.h>
 #include "coord.h"
@@ -19,9 +20,7 @@
 // Tetromino input enum 
 typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE} Input_Types;
 // Clock types
-typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK, SPLASH_CLOCK} Clock_Types;
-// Splash flags
-typedef enum {FLAG_NONE, LEVEL_UP} Splash_Flags;
+typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK} Clock_Types;
 
 bool game_fits_screen ();
 void draw_playfield (Playfield *playfield);
@@ -30,5 +29,6 @@ void init_curses (void);
 void uninit_curses (void);
 int convert_input(int input);
 bool timer_reached (clock_t clock_last, int clock_type, Stats *stats);
+void a_game_of_tetris (void);
 
 #endif

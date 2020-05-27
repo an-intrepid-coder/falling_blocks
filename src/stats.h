@@ -4,10 +4,12 @@
 #define CLEAR_ROW_SCORE 10
 #define DEFAULT_STEP_INTERVAL_IN_SECONDS (double) 1
 
+typedef enum {SCORE_LINE, LEVEL_LINE, TICKS_LINE} Hud_Lines;
+
 typedef struct {
     /* A struct to keep track of game statistics. Passes some to the hud display.  */
-    long long int score;
-    long long int ticks;
+    int score;
+    int ticks;
     int level;
     double step_interval;
 } Stats;
