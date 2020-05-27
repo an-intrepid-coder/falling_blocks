@@ -3,6 +3,8 @@
 #include <string.h>
 #include <time.h>
 
+#include <unistd.h>
+
 #include "falling_blocks.h"
 #include "tetromino.c"
 #include "coord.c"
@@ -127,7 +129,7 @@ void game_over () {
     while (getch() != 113) {}
 }
 
-void a_game_of_tetris (void) {
+void a_game_of_falling_blocks (void) {
     clock_t fps_clock_last = clock();
     clock_t step_clock_last = clock();
     clock_t user_input_clock_last = clock();
@@ -184,7 +186,7 @@ int main (int argc, char *argv[]) {
 
     init_curses();
     
-    a_game_of_tetris();
+    a_game_of_falling_blocks();
     
     game_over();
 

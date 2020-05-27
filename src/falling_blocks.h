@@ -29,6 +29,6 @@ void init_curses (void);
 void uninit_curses (void);
 int convert_input(int input);
 bool timer_reached (clock_t clock_last, int clock_type, Stats *stats);
-void a_game_of_tetris (void);
+void a_game_of_falling_blocks (void);
 
 #endif
