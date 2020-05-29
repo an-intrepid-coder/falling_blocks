@@ -6,8 +6,8 @@ Playfield playfield_constructor (void) {
 
     for (int row = 0; row < PLAYFIELD_HEIGHT; row++) {
         for (int col = 0; col < PLAYFIELD_WIDTH; col++) {
-            new_playfield.cell_filled[row][col] = false;
             new_playfield.active_tetromino[row][col] = false;
+            new_playfield.fill_type[row][col] = FILL_EMPTY;
         }
     }
 
@@ -18,7 +18,7 @@ bool playfield_row_filled (Playfield *playfield, int row) {
     /* Returns true if a row is filled.  */
     bool return_value = true;
     for (int cell = 0; cell < PLAYFIELD_WIDTH; cell++) {
-        if (!playfield->cell_filled[row][cell]) {
+        if (playfield->fill_type[row][cell] == FILL_EMPTY) {
             return_value = false;
             break;
         }
@@ -29,7 +29,7 @@ bool playfield_row_filled (Playfield *playfield, int row) {
 void playfield_clear_row (Playfield *playfield, int row) {
     /* Clears a line of blocks.  */
     for (int cell = 0; cell < PLAYFIELD_WIDTH; cell++) {
-        playfield->cell_filled[row][cell] = false;
+        playfield->fill_type[row][cell] = FILL_EMPTY;
     }
 }
 
@@ -37,10 +37,7 @@ void playfield_gravity (Playfield *playfield, int cleared_row) {
     /* Causes all cells to fall by 1 row.  */
     for (int row = cleared_row; row > 0; row--) {
         for (int cell = 0; cell < PLAYFIELD_WIDTH; cell++) {
-            if (playfield->cell_filled[row - 1][cell]) {
-                playfield->cell_filled[row - 1][cell] = false;
-                playfield->cell_filled[row][cell] = true;
-            }
+            playfield->fill_type[row][cell] = playfield->fill_type[row - 1][cell];
         }
     }
 }

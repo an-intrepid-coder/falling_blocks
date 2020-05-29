@@ -21,9 +21,18 @@
 typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE} Input_Types;
 // Clock types
 typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK} Clock_Types;
+// Color pairs
+typedef enum { 
+    PAIR_NORMAL,
+
+    PAIR_SQUARE_ASCII, PAIR_STRAIGHT_ASCII, PAIR_SKEW_A_ASCII, PAIR_SKEW_B_ASCII,
+    PAIR_L_A_ASCII, PAIR_L_B_ASCII, PAIR_T_ASCII
+} Color_Pairs;
+// Color modes
+typedef enum {MODE_NO_COLOR, MODE_ASCII_COLOR, MODE_SOLID_COLOR} Color_Modes;
 
 bool game_fits_screen ();
-void draw_playfield (Playfield *playfield);
+void draw_playfield (Playfield *playfield, int mode);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);

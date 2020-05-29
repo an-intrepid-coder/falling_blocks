@@ -1,5 +1,7 @@
 #include "stats.h"
 
+#define LEVEL_UP_STEP_INTERVAL_MULTIPLIER (double) .8
+
 Stats stats_constructor () {
 
     Stats new_stats;
@@ -22,7 +24,7 @@ bool stats_can_level_up (Stats *stats) {
 
 void stats_level_up (Stats *stats) {
     stats->level += 1;
-    stats->step_interval *= .9;
+    stats->step_interval *= LEVEL_UP_STEP_INTERVAL_MULTIPLIER;
 }
 
 void stats_tick (Stats *stats) {

@@ -6,11 +6,14 @@
 
 #include "stats.h"
 
+typedef enum {FILL_EMPTY, FILL_SQUARE, FILL_STRAIGHT, FILL_SKEW_A, FILL_SKEW_B, 
+              FILL_L_A, FILL_L_B, FILL_T} Fill_Types;
+
 typedef struct {
     /* The playfield object is just a collection of 2-D arrays representing
      * the "cells" that are the fundamental units of the game.  */
-    bool cell_filled[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH];
     bool active_tetromino[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH]; 
+    int fill_type[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH];
 } Playfield;
 
 

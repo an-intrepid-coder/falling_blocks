@@ -88,13 +88,13 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
     }
 
     for (int block = 0; block < NUM_BLOCKS; block++) {
-        int y = new_tetromino.blocks_yx[block].y;
-        int x = new_tetromino.blocks_yx[block].x;
-        if (playfield->cell_filled[y][x]) {
+        int row = new_tetromino.blocks_yx[block].y;
+        int cell = new_tetromino.blocks_yx[block].x;
+        if (playfield->fill_type[row][cell] != FILL_EMPTY) {
             new_tetromino.game_over = true;
         } else {
-            playfield->cell_filled[y][x] = true;
-            playfield->active_tetromino[y][x] = true;
+            playfield->active_tetromino[row][cell] = true;
+            playfield->fill_type[row][cell] = tetromino_type + 1;
         }
     }
 
@@ -109,8 +109,8 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
             for (int block = 0; block < NUM_BLOCKS; block++) {
                 if (tetromino->blocks_yx[block].y >= (PLAYFIELD_HEIGHT - 1)) {
                     return_value = false;
-                } else if (playfield->cell_filled[tetromino->blocks_yx[block].y + 1]
-                                                 [tetromino->blocks_yx[block].x] &&
+                } else if (playfield->fill_type[tetromino->blocks_yx[block].y + 1]
+                                               [tetromino->blocks_yx[block].x] &&
                            !playfield->active_tetromino[tetromino->blocks_yx[block].y + 1] 
                                                        [tetromino->blocks_yx[block].x]) {
                     return_value = false;
@@ -121,8 +121,8 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
             for (int block = 0; block < NUM_BLOCKS; block++) {
                 if (tetromino->blocks_yx[block].x <= 0) {
                     return_value = false;
-                } else if (playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                                 [tetromino->blocks_yx[block].x - 1] &&
+                } else if (playfield->fill_type[tetromino->blocks_yx[block].y]
+                                               [tetromino->blocks_yx[block].x - 1] &&
                            !playfield->active_tetromino[tetromino->blocks_yx[block].y] 
                                                        [tetromino->blocks_yx[block].x - 1]) {
                     return_value = false;
@@ -133,8 +133,8 @@ bool tetromino_can_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
             for (int block = 0; block < NUM_BLOCKS; block++) {
                 if (tetromino->blocks_yx[block].x >= (PLAYFIELD_WIDTH - 1)) {
                     return_value = false;
-                } else if (playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                                 [tetromino->blocks_yx[block].x + 1] &&
+                } else if (playfield->fill_type[tetromino->blocks_yx[block].y]
+                                               [tetromino->blocks_yx[block].x + 1] &&
                            !playfield->active_tetromino[tetromino->blocks_yx[block].y] 
                                                        [tetromino->blocks_yx[block].x + 1]) {
                     return_value = false;
@@ -155,10 +155,10 @@ void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
          *                candidates for later refactoring.  */
         for (int block = 0; block < NUM_BLOCKS; block++) {
             if (tetromino->blocks_yx[block].y >= 0) {
-                playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                      [tetromino->blocks_yx[block].x] = false;
                 playfield->active_tetromino[tetromino->blocks_yx[block].y]
                                            [tetromino->blocks_yx[block].x] = false;
+                playfield->fill_type[tetromino->blocks_yx[block].y]
+                                    [tetromino->blocks_yx[block].x] = FILL_EMPTY;
             }
         }
         switch (mvdir) {
@@ -185,10 +185,11 @@ void tetromino_move(Tetromino *tetromino, Playfield *playfield, int mvdir) {
         }
         for (int block = 0; block < NUM_BLOCKS; block++) {
             if (tetromino->blocks_yx[block].y >= 0) {
-                playfield->cell_filled[tetromino->blocks_yx[block].y]
-                                      [tetromino->blocks_yx[block].x] = true;
                 playfield->active_tetromino[tetromino->blocks_yx[block].y]
                                            [tetromino->blocks_yx[block].x] = true;
+                playfield->fill_type[tetromino->blocks_yx[block].y]
+                                    [tetromino->blocks_yx[block].x] = 
+                                        tetromino->tetromino_type + 1;
             }
         }
     }
@@ -215,8 +216,8 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                 case FIRST:
                     for (int block = 0; block < 3; block++) {
                         if (tetromino->blocks_yx[1].y - block >= 0) {
-                            if (playfield->cell_filled[tetromino->blocks_yx[1].y - block]
-                                                      [tetromino->blocks_yx[1].x] &&
+                            if (playfield->fill_type[tetromino->blocks_yx[1].y - block]
+                                                    [tetromino->blocks_yx[1].x] &&
                                 !playfield->active_tetromino[tetromino->blocks_yx[1].y - block]
                                                             [tetromino->blocks_yx[1].x]) {
                                 return_value = false;
@@ -228,16 +229,16 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[3].x - 1 >= 0 &&
                         tetromino->blocks_yx[3].x + 1 <= (PLAYFIELD_WIDTH - 1) &&
                         tetromino->blocks_yx[3].x + 2 <= (PLAYFIELD_WIDTH - 1)) {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x - 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x - 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x - 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x + 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x + 2] &&
+                            (playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x + 2] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x + 2])) {
                             return_value = false;
@@ -252,19 +253,19 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
-                        if (playfield->cell_filled[tetromino->blocks_yx[0].y]
-                                                  [tetromino->blocks_yx[0].x - 1] &&
+                        if (playfield->fill_type[tetromino->blocks_yx[0].y]
+                                                [tetromino->blocks_yx[0].x - 1] &&
                             !playfield->active_tetromino[tetromino->blocks_yx[0].y]
                                                         [tetromino->blocks_yx[0].x - 1]) {
                             return_value = false;
                         }
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[0].y - 1]
-                                                   [tetromino->blocks_yx[0].x - 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[0].y - 1]
+                                                 [tetromino->blocks_yx[0].x - 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y - 1]
                                                          [tetromino->blocks_yx[0].x - 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[0].y]
-                                                   [tetromino->blocks_yx[0].x - 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[0].y]
+                                                 [tetromino->blocks_yx[0].x - 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y]
                                                          [tetromino->blocks_yx[0].x - 1])) {
                             return_value = false;
@@ -275,12 +276,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[3].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x - 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x - 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x - 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[2].y]
-                                                   [tetromino->blocks_yx[2].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[2].y]
+                                                 [tetromino->blocks_yx[2].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y]
                                                          [tetromino->blocks_yx[2].x + 1])) {
                             return_value = false;
@@ -293,19 +294,19 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
-                        if (playfield->cell_filled[tetromino->blocks_yx[0].y + 1]
-                                                  [tetromino->blocks_yx[0].x] &&
+                        if (playfield->fill_type[tetromino->blocks_yx[0].y + 1]
+                                                [tetromino->blocks_yx[0].x] &&
                             !playfield->active_tetromino[tetromino->blocks_yx[0].y + 1]
                                                         [tetromino->blocks_yx[0].x]) {
                             return_value = false;
                         }
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[0].y + 1]
-                                                   [tetromino->blocks_yx[0].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[0].y + 1]
+                                                 [tetromino->blocks_yx[0].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y + 1]
                                                          [tetromino->blocks_yx[0].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                   [tetromino->blocks_yx[1].x] &&
+                            (playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                 [tetromino->blocks_yx[1].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                          [tetromino->blocks_yx[1].x])) {
                             return_value = false;
@@ -316,12 +317,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[0].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[2].y + 1]
-                                                   [tetromino->blocks_yx[2].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[2].y + 1]
+                                                 [tetromino->blocks_yx[2].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y + 1]
                                                          [tetromino->blocks_yx[2].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[2].y + 1]
-                                                   [tetromino->blocks_yx[2].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[2].y + 1]
+                                                 [tetromino->blocks_yx[2].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y + 1]
                                                          [tetromino->blocks_yx[2].x + 1])) {
                             return_value = false;
@@ -334,12 +335,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             // clockwise only for now
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
-                    if ((playfield->cell_filled[tetromino->blocks_yx[0].y - 1]
-                                               [tetromino->blocks_yx[0].x] &&
+                    if ((playfield->fill_type[tetromino->blocks_yx[0].y - 1]
+                                             [tetromino->blocks_yx[0].x] &&
                          !playfield->active_tetromino[tetromino->blocks_yx[0].y - 1]
                                                      [tetromino->blocks_yx[0].x]) ||
-                        (playfield->cell_filled[tetromino->blocks_yx[0].y - 1]
-                                               [tetromino->blocks_yx[0].x + 1] &&
+                        (playfield->fill_type[tetromino->blocks_yx[0].y - 1]
+                                             [tetromino->blocks_yx[0].x + 1] &&
                          !playfield->active_tetromino[tetromino->blocks_yx[0].y - 1]
                                                      [tetromino->blocks_yx[0].x + 1])) {
                         return_value = false;
@@ -349,16 +350,16 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[1].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[2].y]
-                                                   [tetromino->blocks_yx[2].x + 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[2].y]
+                                                 [tetromino->blocks_yx[2].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y]
                                                          [tetromino->blocks_yx[2].x + 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[2].y]
-                                                   [tetromino->blocks_yx[2].x + 2] &&
+                            (playfield->fill_type[tetromino->blocks_yx[2].y]
+                                                 [tetromino->blocks_yx[2].x + 2] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y]
                                                          [tetromino->blocks_yx[2].x + 2]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[2].y + 1]
-                                                   [tetromino->blocks_yx[2].x + 2] &&
+                            (playfield->fill_type[tetromino->blocks_yx[2].y + 1]
+                                                 [tetromino->blocks_yx[2].x + 2] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y + 1]
                                                          [tetromino->blocks_yx[2].x + 2])) {
                             return_value = false;
@@ -367,27 +368,27 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                 break;
                 case THIRD:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[0].y + 1]
-                                                   [tetromino->blocks_yx[0].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[0].y + 1]
+                                                 [tetromino->blocks_yx[0].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y + 1]
                                                          [tetromino->blocks_yx[0].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[0].y + 1]
-                                                   [tetromino->blocks_yx[0].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[0].y + 1]
+                                                 [tetromino->blocks_yx[0].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y + 1]
                                                          [tetromino->blocks_yx[0].x + 1])) {
                             return_value = false;
                         }
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[0].y + 1]
-                                                   [tetromino->blocks_yx[0].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[0].y + 1]
+                                                 [tetromino->blocks_yx[0].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y + 1]
                                                          [tetromino->blocks_yx[0].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[0].y + 1]
-                                                   [tetromino->blocks_yx[0].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[0].y + 1]
+                                                 [tetromino->blocks_yx[0].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y + 1]
                                                          [tetromino->blocks_yx[0].x + 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[0].y - 1]
-                                                   [tetromino->blocks_yx[0].x + 1])) {
+                            (playfield->fill_type[tetromino->blocks_yx[0].y - 1]
+                                                 [tetromino->blocks_yx[0].x + 1])) {
                             return_value = false;
                         }
                     }
@@ -396,12 +397,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[0].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[2].y - 1]
-                                                   [tetromino->blocks_yx[2].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[2].y - 1]
+                                                 [tetromino->blocks_yx[2].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y - 1]
                                                          [tetromino->blocks_yx[2].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x + 1])) {
                             return_value = false;
@@ -415,19 +416,19 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
-                        if (playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                  [tetromino->blocks_yx[1].x] &&
+                        if (playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                [tetromino->blocks_yx[1].x] &&
                             !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                         [tetromino->blocks_yx[1].x]) {
                             return_value = false;
                         }
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                   [tetromino->blocks_yx[1].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                 [tetromino->blocks_yx[1].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                          [tetromino->blocks_yx[1].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[1].y - 2]
-                                                   [tetromino->blocks_yx[1].x] &&
+                            (playfield->fill_type[tetromino->blocks_yx[1].y - 2]
+                                                 [tetromino->blocks_yx[1].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y - 2]
                                                          [tetromino->blocks_yx[1].x])) {
                             return_value = false;
@@ -438,12 +439,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[3].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[1].y]
-                                                   [tetromino->blocks_yx[1].x + 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[1].y]
+                                                 [tetromino->blocks_yx[1].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y]
                                                          [tetromino->blocks_yx[1].x + 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[1].y]
-                                                   [tetromino->blocks_yx[1].x + 2] &&
+                            (playfield->fill_type[tetromino->blocks_yx[1].y]
+                                                 [tetromino->blocks_yx[1].x + 2] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y]
                                                          [tetromino->blocks_yx[1].x + 2])) {
                             return_value = false;
@@ -452,23 +453,23 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                 break;
                 case THIRD:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
-                        if (playfield->cell_filled[tetromino->blocks_yx[1].y + 1]
-                                                  [tetromino->blocks_yx[1].x] &&
+                        if (playfield->fill_type[tetromino->blocks_yx[1].y + 1]
+                                                [tetromino->blocks_yx[1].x] &&
                             !playfield->active_tetromino[tetromino->blocks_yx[1].y + 1]
                                                         [tetromino->blocks_yx[1].x]) {
                             return_value = false;
                         }
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[1].y + 1]
-                                                   [tetromino->blocks_yx[1].x] &&
-                             !playfield->cell_filled[tetromino->blocks_yx[1].y + 1]
-                                                    [tetromino->blocks_yx[1].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                   [tetromino->blocks_yx[1].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[1].y + 1]
+                                                 [tetromino->blocks_yx[1].x] &&
+                             !playfield->fill_type[tetromino->blocks_yx[1].y + 1]
+                                                  [tetromino->blocks_yx[1].x]) ||
+                            (playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                 [tetromino->blocks_yx[1].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                          [tetromino->blocks_yx[1].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[0].y - 1]
-                                                   [tetromino->blocks_yx[0].x] &&
+                            (playfield->fill_type[tetromino->blocks_yx[0].y - 1]
+                                                 [tetromino->blocks_yx[0].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[0].y - 1]
                                                          [tetromino->blocks_yx[0].x])) {
                             return_value = false;
@@ -479,16 +480,16 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[1].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x - 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x - 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x - 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x + 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[3].y - 1]
-                                                   [tetromino->blocks_yx[3].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[3].y - 1]
+                                                 [tetromino->blocks_yx[3].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y - 1]
                                                          [tetromino->blocks_yx[3].x + 1])) {
                             return_value = false;
@@ -502,8 +503,8 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
             switch (tetromino->tetromino_configuration) {
                 case FIRST:
                     if (tetromino->blocks_yx[0].y - 1 > 0) {
-                        if (playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                  [tetromino->blocks_yx[1].x] &&
+                        if (playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                [tetromino->blocks_yx[1].x] &&
                             !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                         [tetromino->blocks_yx[1].x]) {
                             return_value = false;
@@ -514,12 +515,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[0].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x - 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x - 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x - 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[3].y]
-                                                   [tetromino->blocks_yx[3].x + 1] &&
+                            (playfield->fill_type[tetromino->blocks_yx[3].y]
+                                                 [tetromino->blocks_yx[3].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[3].y]
                                                          [tetromino->blocks_yx[3].x + 1])) {
                             return_value = false;
@@ -528,19 +529,19 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                 break;
                 case THIRD:
                     if (tetromino->blocks_yx[0].y - 1 < 0) {
-                        if (playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                  [tetromino->blocks_yx[1].x] &&
+                        if (playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                [tetromino->blocks_yx[1].x] &&
                             !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                         [tetromino->blocks_yx[1].x]) {
                             return_value = false;
                         }
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[1].y - 1]
-                                                   [tetromino->blocks_yx[1].x] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[1].y - 1]
+                                                 [tetromino->blocks_yx[1].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y - 1]
                                                          [tetromino->blocks_yx[1].x]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[1].y - 2]
-                                                   [tetromino->blocks_yx[1].x] &&
+                            (playfield->fill_type[tetromino->blocks_yx[1].y - 2]
+                                                 [tetromino->blocks_yx[1].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[1].y - 2]
                                                          [tetromino->blocks_yx[1].x])) {
                             return_value = false;
@@ -551,12 +552,12 @@ bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
                     if (tetromino->blocks_yx[2].x + 1 > (PLAYFIELD_WIDTH - 1)) {
                         return_value = false;
                     } else {
-                        if ((playfield->cell_filled[tetromino->blocks_yx[2].y]
-                                                   [tetromino->blocks_yx[2].x + 1] &&
+                        if ((playfield->fill_type[tetromino->blocks_yx[2].y]
+                                                 [tetromino->blocks_yx[2].x + 1] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y]
                                                          [tetromino->blocks_yx[2].x + 1]) ||
-                            (playfield->cell_filled[tetromino->blocks_yx[2].y + 1]
-                                                   [tetromino->blocks_yx[2].x] &&
+                            (playfield->fill_type[tetromino->blocks_yx[2].y + 1]
+                                                 [tetromino->blocks_yx[2].x] &&
                              !playfield->active_tetromino[tetromino->blocks_yx[2].y + 1]
                                                          [tetromino->blocks_yx[2].x])) {
                             return_value = false;

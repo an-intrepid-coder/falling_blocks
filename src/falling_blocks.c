@@ -31,18 +31,63 @@ Coord get_playfield_starting_yx (void) {
     return new_coord;
 }
 
-void draw_playfield (Playfield *playfield) {
+void draw_playfield (Playfield *playfield, int mode) {
     /* Centers and displays the playfield.  */
+    erase();
     Coord starting_yx = get_playfield_starting_yx();
-    for (int y = 0; y < PLAYFIELD_HEIGHT; y++) {
-        for (int x = 0; x < PLAYFIELD_WIDTH; x++) {
-            if (playfield->cell_filled[y][x]) {
-                mvaddch(starting_yx.y + y, starting_yx.x + x, '#');
-            } else {
-                mvaddch(starting_yx.y + y, starting_yx.x + x, '.');
+    for (int row = 0; row < PLAYFIELD_HEIGHT; row++) {
+        for (int cell = 0; cell < PLAYFIELD_WIDTH; cell++) {
+            switch (mode) {
+                case MODE_ASCII_COLOR:
+                    switch (playfield->fill_type[row][cell]) {
+                        case FILL_EMPTY:
+                            attron(COLOR_PAIR(PAIR_NORMAL));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '.');
+                            attroff(COLOR_PAIR(PAIR_NORMAL));
+                        break;
+                        case FILL_SQUARE:
+                            attron(COLOR_PAIR(PAIR_SQUARE_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_SQUARE_ASCII));
+                        break;
+                        case FILL_STRAIGHT:
+                            attron(COLOR_PAIR(PAIR_STRAIGHT_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_STRAIGHT_ASCII));
+                        break;
+                        case FILL_SKEW_A:
+                            attron(COLOR_PAIR(PAIR_SKEW_A_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_SKEW_A_ASCII));
+                        break;
+                        case FILL_SKEW_B:
+                            attron(COLOR_PAIR(PAIR_SKEW_B_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_SKEW_B_ASCII));
+                        break;
+                        case FILL_L_A:
+                            attron(COLOR_PAIR(PAIR_L_A_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_L_A_ASCII));
+                        break;
+                        case FILL_L_B:
+                            attron(COLOR_PAIR(PAIR_L_B_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_L_B_ASCII));
+                        break;
+                        case FILL_T:
+                            attron(COLOR_PAIR(PAIR_T_ASCII));
+                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
+                            attroff(COLOR_PAIR(PAIR_T_ASCII));
+                        break;
+                    }
+                break;
+                case MODE_SOLID_COLOR:  //to-do
+                break;
             }
         }
     }
+    refresh();
 }
 
 void draw_hud (Stats *stats) {
@@ -62,6 +107,17 @@ void init_curses (void) {
     cbreak();
     curs_set(0);
     nodelay(stdscr, true);
+    if (has_colors()) {
+        start_color();
+        init_pair(PAIR_NORMAL, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_SQUARE_ASCII, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_STRAIGHT_ASCII, COLOR_CYAN, COLOR_BLACK);
+        init_pair(PAIR_SKEW_A_ASCII, COLOR_RED, COLOR_BLACK);
+        init_pair(PAIR_SKEW_B_ASCII, COLOR_BLUE, COLOR_BLACK);
+        init_pair(PAIR_L_A_ASCII, COLOR_GREEN, COLOR_BLACK);
+        init_pair(PAIR_L_B_ASCII, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(PAIR_T_ASCII, COLOR_MAGENTA, COLOR_BLACK);
+    }
 }
 
 void uninit_curses (void) {
@@ -147,7 +203,7 @@ void a_game_of_falling_blocks (void) {
         int input = getch();
         if (timer_reached(fps_clock_last, FPS_CLOCK, &stats)){
             erase();
-            draw_playfield(&playfield);
+            draw_playfield(&playfield, MODE_ASCII_COLOR);
             draw_hud(&stats);
             fps_clock_last = clock();
 
