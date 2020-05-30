@@ -1,7 +1,5 @@
 #include "stats.h"
 
-#define LEVEL_UP_STEP_INTERVAL_MULTIPLIER (double) .8
-
 Stats stats_constructor () {
 
     Stats new_stats;
@@ -22,9 +20,19 @@ bool stats_can_level_up (Stats *stats) {
     return return_value;
 }
 
-void stats_level_up (Stats *stats) {
+void stats_level_up (Stats *stats, int difficulty_level) {
     stats->level += 1;
-    stats->step_interval *= LEVEL_UP_STEP_INTERVAL_MULTIPLIER;
+    switch (difficulty_level) {
+        case DIFFICULTY_EASY:
+            stats->step_interval *= STEP_INTERVAL_MULTIPLIER_SLOW;
+        break;
+        case DIFFICULTY_MEDIUM:
+            stats->step_interval *= STEP_INTERVAL_MULTIPLIER_MEDIUM;
+        break;
+        case DIFFICULTY_HARD:
+            stats->step_interval *= STEP_INTERVAL_MULTIPLIER_FAST;
+        break;
+    }
 }
 
 void stats_tick (Stats *stats) {
