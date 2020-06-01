@@ -200,8 +200,16 @@ int convert_input (int input) {
         case 100:
             return_value = RIGHT;
         break;
-        default:
+        case 70:
+        case 102:
             return_value = ROTATE;
+        break;
+        case 80:
+        case 112:
+            return_value = PAUSE;
+        break;
+        default:
+            return_value = DIRECTION_NONE;
         break;
     }
     return return_value;
@@ -235,7 +243,8 @@ bool timer_reached (clock_t clock_last, int input_clock_type, Stats *stats) {
 void game_over () {
     /* Turns off non-blocking mode and alerts the player to exit the game.  */
     nodelay(stdscr, false);
-    mvprintw(0, 0, "Game Over!\n ... 'q' key to exit.");
+    mvprintw(0, 0, "Game Over!");
+    mvprintw(1, 0, " ... 'q' key to exit.");
     while (getch() != 113) {}
 }
 
@@ -263,7 +272,11 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
                 step_clock_last = clock();
                 stats_tick(&stats);
             } else if ((input = getch()) != ERR) {
-                tetromino_move(&tetromino, &playfield, convert_input(input));
+                if (convert_input(input) == PAUSE) {
+                    stats.paused = true;
+                } else {
+                    tetromino_move(&tetromino, &playfield, convert_input(input));
+                }
                 while ((getch() != ERR)){}
             }
 
@@ -284,6 +297,16 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
                 stats_level_up(&stats, difficulty_level);
             }
         
+            if (stats.paused) {
+                nodelay(stdscr, false);
+                mvprintw(0, 0, "GAME PAUSED");
+                mvprintw(1, 0, "...any key to continue...");
+                getch();
+                stats.paused = false;
+                erase();
+                nodelay(stdscr, true);
+            }
+
             draw_playfield(&playfield, color_mode);
             draw_hud(&stats);
             fps_clock_last = clock();

@@ -15,6 +15,7 @@ typedef struct {
     int ticks;
     int level;
     double step_interval;
+    bool paused;
 } Stats;
 
 Stats stats_constructor ();

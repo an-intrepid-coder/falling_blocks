@@ -20,7 +20,7 @@
 // Enum for the hud display rows.
 typedef enum {SCORE_LINE, LEVEL_LINE, TICKS_LINE, STEP_LINE} Hud_Lines;
 // Tetromino input enum 
-typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE} Input_Types;
+typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE, PAUSE} Input_Types;
 // Clock types
 typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK} Clock_Types;
 // Color pairs

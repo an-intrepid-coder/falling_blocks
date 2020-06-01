@@ -8,6 +8,7 @@ Stats stats_constructor () {
     new_stats.ticks = 0;
     new_stats.level = 1;
     new_stats.step_interval = DEFAULT_STEP_INTERVAL_IN_SECONDS;
+    new_stats.paused = false;
 
     return new_stats;
 }
