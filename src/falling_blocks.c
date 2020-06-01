@@ -149,6 +149,18 @@ void draw_hud (Stats *stats) {
              stats->step_interval);
 }
 
+void draw_game (Playfield *playfield, Stats *stats, int color_mode, int *last_rows, 
+                int *last_cols) {
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+    if (rows != *last_rows || cols != *last_cols) {
+        erase();
+        getmaxyx(stdscr, last_rows, last_cols);
+    }
+    draw_playfield(playfield, color_mode);
+    draw_hud(stats);
+}
+
 // A couple of curses wrappers
 void init_curses (void) {
     initscr();
@@ -248,6 +260,7 @@ void game_over () {
     while (getch() != 113) {}
 }
 
+
 void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
     clock_t fps_clock_last = clock();
     clock_t step_clock_last = clock();
@@ -262,6 +275,9 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
 
     Tetromino tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x, 
                                                 &playfield);
+
+    int last_rows, last_cols;
+    getmaxyx(stdscr, last_rows, last_cols);
 
     while (!tetromino.game_over) {
         if (timer_reached(fps_clock_last, FPS_CLOCK, &stats)){
@@ -307,8 +323,7 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
                 nodelay(stdscr, true);
             }
 
-            draw_playfield(&playfield, color_mode);
-            draw_hud(&stats);
+            draw_game(&playfield, &stats, color_mode, &last_rows, &last_cols);
             fps_clock_last = clock();
         }
     }

@@ -37,6 +37,8 @@ typedef enum {
 typedef enum {MODE_NO_COLOR, MODE_ASCII_COLOR, MODE_SOLID_COLOR} Color_Modes;
 
 bool game_fits_screen ();
+void draw_game (Playfield *playfield, Stats *stats, int color_mode, int *last_rows, 
+                int *last_cols);
 void draw_playfield (Playfield *playfield, int mode);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
