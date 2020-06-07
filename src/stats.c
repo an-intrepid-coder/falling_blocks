@@ -23,17 +23,19 @@ bool stats_can_level_up (Stats *stats) {
 
 void stats_level_up (Stats *stats, int difficulty_level) {
     stats->level += 1;
+    double result = stats->step_interval;
     switch (difficulty_level) {
         case DIFFICULTY_EASY:
-            stats->step_interval *= STEP_INTERVAL_MULTIPLIER_SLOW;
+            result *= STEP_INTERVAL_MULTIPLIER_SLOW;
         break;
         case DIFFICULTY_MEDIUM:
-            stats->step_interval *= STEP_INTERVAL_MULTIPLIER_MEDIUM;
+            result *= STEP_INTERVAL_MULTIPLIER_MEDIUM;
         break;
         case DIFFICULTY_HARD:
-            stats->step_interval *= STEP_INTERVAL_MULTIPLIER_FAST;
+            result *= STEP_INTERVAL_MULTIPLIER_FAST;
         break;
     }
+    if (result >= STEP_INTERVAL_MAX) stats->step_interval = result;
 }
 
 void stats_tick (Stats *stats) {

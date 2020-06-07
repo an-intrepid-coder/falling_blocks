@@ -7,7 +7,6 @@
 #define HUD_WIDTH 14
 
 #define FRAME_INTERVAL_IN_SECONDS (double) .0834
-#define USER_INPUT_INTERVAL_IN_SECONDS (double) .15
 
 #define SPAWN_LIMIT 7
 
@@ -37,8 +36,7 @@ typedef enum {
 typedef enum {MODE_NO_COLOR, MODE_ASCII_COLOR, MODE_SOLID_COLOR} Color_Modes;
 
 bool game_fits_screen ();
-void draw_game (Playfield *playfield, Stats *stats, int color_mode, int *last_rows, 
-                int *last_cols);
+void draw_game (Playfield *playfield, Stats *stats, int color_mode);
 void draw_playfield (Playfield *playfield, int mode);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
