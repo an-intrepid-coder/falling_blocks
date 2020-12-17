@@ -1,5 +1,7 @@
 # FALLING BLOCKS
 
+![Gameplay Image](images/gameplay.jpg)
+
 **Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. **'a', 's', 'd'** keys to move left, down, and right. **'f'** key to rotate the tetromino. **'p'** to pause the game. Press **'CTRL+C'** to exit, except during the game over screen when you'll be prompted to quit with **'q'**. I wrote this to see if I could and this is the unoptimized prototype. After writing it, I got side-tracked by life and abandoned the project, but I was recently encouraged to put it up again. It never got past the "naive prototype" stage and it shows in a lot of the code. I plan on re-writing this in Rust, rather than C, in the very near future.
 
 **Options:** `-easy`, `-medium`, and `-hard` set the size of the speed decrements for each new level (so harder means the blocks fall faster sooner). `-ascii` and `-solid` set the symbols used for the tetromino blocks (solid gives a more arcade-like appearance). By default no color is used. An example might be `./blocks -easy -ascii` or `./blocks -solid -hard`. Some players might find it easier to "line up" the tiles using the `-ascii` setting instead of the `-solid` setting.
