@@ -54,3 +54,4 @@ void playfield_clear_lines (Playfield *playfield, Stats *stats) {
         }
     }
 }
+

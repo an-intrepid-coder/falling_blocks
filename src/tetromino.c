@@ -203,10 +203,11 @@ void tetromino_freeze (Tetromino *tetromino, Playfield *playfield) {
     }
 }
 
-/* REFACTOR NOTE: This function will be broken down into three or four
- *                sub-functions after it is in an operational state.  */
+
 bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
-    /* Returns true or false depending on whether or not the tetromino is able to rotate.  */
+    /* Returns true or false depending on whether or not the tetromino is able to rotate. This is
+     * a naive implementation that needs to be refactored very badly. This was just to prove the 
+     * concept.  */
     bool return_value = true;
     switch (tetromino->tetromino_type) {
         case SQUARE:
@@ -575,7 +576,8 @@ void tetromino_rotate (Tetromino *tetromino, Playfield *playfield) {
      * State-changes will be relative to a block that does not move, but sometimes the
      * non-moving block will "switch indexes" with another block because the indexing scheme
      * is pretty arbitrary and should be refactored to specifically take advantage of 
-     * blocks whose coordinates don't change during rotation.  */
+     * blocks whose coordinates don't change during rotation. Basically everything about
+     * the rotation scheme was done ad-hoc and I plan on doing it again more deliberately.  */
     if (tetromino_can_rotate(tetromino, playfield)) {
         switch (tetromino->tetromino_type) {
             case STRAIGHT:
@@ -800,3 +802,4 @@ void tetromino_rotate (Tetromino *tetromino, Playfield *playfield) {
         }
     }
 }
+

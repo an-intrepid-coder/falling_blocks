@@ -27,3 +27,4 @@ void tetromino_rotate (Tetromino *tetromino, Playfield *playfield);
 bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield);
 
 #endif
+

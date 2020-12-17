@@ -45,3 +45,4 @@ void stats_tick (Stats *stats) {
 void stats_score_up (Stats *stats, int score_up_amount) {
     stats->score += score_up_amount;
 }
+

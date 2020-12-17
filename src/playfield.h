@@ -24,3 +24,4 @@ void playfield_gravity (Playfield *playfield, int row);
 void playfield_clear_lines (Playfield *playfield, Stats *stats);
 
 #endif
+

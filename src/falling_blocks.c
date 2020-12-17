@@ -5,12 +5,10 @@
 
 #include "falling_blocks.h"
 #include "tetromino.c"
-#include "coord.c"
 #include "playfield.c"
 #include "stats.c"
 
 bool game_fits_screen (void) {
-    /* Returns true if the current terminal can fit the game screen.  */
     int terminal_height, terminal_width;
     getmaxyx(stdscr, terminal_height, terminal_width);
     if (terminal_height >= GAME_SCREEN_HEIGHT && terminal_width >= GAME_SCREEN_WIDTH) {
@@ -20,7 +18,6 @@ bool game_fits_screen (void) {
 }
 
 Coord get_playfield_starting_yx (void) {
-    /* takes pointers to two integers and returns the coordinates as an object.  */
     Coord new_coord;
 
     int terminal_height, terminal_width;
@@ -32,7 +29,8 @@ Coord get_playfield_starting_yx (void) {
 }
 
 void draw_playfield (Playfield *playfield, int mode) {
-    /* Centers and displays the playfield.  */
+    /* Centers and displays the playfield. This is a naive version and needs serious
+     * optimization.  */
     Coord starting_yx = get_playfield_starting_yx();
     for (int row = 0; row < PLAYFIELD_HEIGHT; row++) {
         for (int cell = 0; cell < PLAYFIELD_WIDTH; cell++) {
@@ -138,7 +136,6 @@ void draw_playfield (Playfield *playfield, int mode) {
 }
 
 void draw_hud (Stats *stats) {
-    /* Centers and displays the HUD.  */
     Coord starting_yx = get_playfield_starting_yx();
     int starting_x = starting_yx.x + PLAYFIELD_WIDTH;
 

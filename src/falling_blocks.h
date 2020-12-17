@@ -18,10 +18,13 @@
 
 // Enum for the hud display rows.
 typedef enum {SCORE_LINE, LEVEL_LINE, TICKS_LINE, STEP_LINE} Hud_Lines;
+
 // Tetromino input enum 
 typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE, PAUSE} Input_Types;
+
 // Clock types
 typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK} Clock_Types;
+
 // Color pairs
 typedef enum { 
     PAIR_NORMAL,
@@ -32,6 +35,7 @@ typedef enum {
     PAIR_SQUARE_SOLID, PAIR_STRAIGHT_SOLID, PAIR_SKEW_A_SOLID, PAIR_SKEW_B_SOLID,
     PAIR_L_A_SOLID, PAIR_L_B_SOLID, PAIR_T_SOLID
 } Color_Pairs;
+
 // Color modes
 typedef enum {MODE_NO_COLOR, MODE_ASCII_COLOR, MODE_SOLID_COLOR} Color_Modes;
 
@@ -49,3 +53,4 @@ int get_difficulty_mode (int argc, char *argv[]);
 int get_color_mode (int argc, char *argv[]);
 
 #endif
+

@@ -6,7 +6,7 @@
 #define STEP_INTERVAL_MULTIPLIER_SLOW (double) .90
 #define STEP_INTERVAL_MULTIPLIER_MEDIUM (double) .80
 #define STEP_INTERVAL_MULTIPLIER_FAST (double) .65
-#define STEP_INTERVAL_MAX (double) .112
+#define STEP_INTERVAL_MAX (double) .122
 
 typedef enum {DIFFICULTY_EASY, DIFFICULTY_MEDIUM, DIFFICULTY_HARD} Difficulty_Levels;
 
@@ -26,3 +26,4 @@ void stats_tick (Stats *stats);
 void stats_score_up (Stats *stats, int score_up_amount);
 
 #endif
+
