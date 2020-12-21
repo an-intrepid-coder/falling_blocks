@@ -6,7 +6,8 @@
 #define HUD_HEIGHT 24
 #define HUD_WIDTH 14
 
-#define FRAME_INTERVAL_IN_SECONDS (double) .0834
+#define FRAME_INTERVAL (double) .033
+#define NSECS_PER_SEC 1000000000
 
 #define SPAWN_LIMIT 7
 
@@ -21,9 +22,6 @@ typedef enum {SCORE_LINE, LEVEL_LINE, TICKS_LINE, STEP_LINE} Hud_Lines;
 
 // Tetromino input enum 
 typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE, PAUSE} Input_Types;
-
-// Clock types
-typedef enum {FPS_CLOCK, STEP_CLOCK, USER_INPUT_CLOCK} Clock_Types;
 
 // Color pairs
 typedef enum { 
@@ -46,11 +44,13 @@ Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);
 int convert_input(int input);
-bool timer_reached (clock_t clock_last, int clock_type, Stats *stats);
+double get_elapsed(struct timespec *start);
+bool state_timer_reached (Stats *stats, struct timespec *state_timer);
 void a_game_of_falling_blocks (int difficulty_level, int color_mode);
 bool has_arguments (int argc, char *argv[]);
 int get_difficulty_mode (int argc, char *argv[]);
 int get_color_mode (int argc, char *argv[]);
+double get_clocks_per_sec();
 
 #endif
 

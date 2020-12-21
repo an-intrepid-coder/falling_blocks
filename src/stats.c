@@ -2,13 +2,13 @@
 
 Stats stats_constructor () {
 
-    Stats new_stats;
-
-    new_stats.score = 0;
-    new_stats.ticks = 0;
-    new_stats.level = 1;
-    new_stats.step_interval = DEFAULT_STEP_INTERVAL_IN_SECONDS;
-    new_stats.paused = false;
+    Stats new_stats = {
+        .score = 0,
+        .ticks = 0,
+        .level = 1,
+        .step_interval = DEFAULT_STEP_INTERVAL_NSEC,
+        .paused = false,
+    };
 
     return new_stats;
 }
@@ -26,16 +26,20 @@ void stats_level_up (Stats *stats, int difficulty_level) {
     double result = stats->step_interval;
     switch (difficulty_level) {
         case DIFFICULTY_EASY:
-            result *= STEP_INTERVAL_MULTIPLIER_SLOW;
+            result -= EASY_JUMP;
         break;
         case DIFFICULTY_MEDIUM:
-            result *= STEP_INTERVAL_MULTIPLIER_MEDIUM;
+            result -= MEDIUM_JUMP;
         break;
         case DIFFICULTY_HARD:
-            result *= STEP_INTERVAL_MULTIPLIER_FAST;
+            result -= HARD_JUMP;
         break;
     }
-    if (result >= STEP_INTERVAL_MAX) stats->step_interval = result;
+    if (result >= STEP_INTERVAL_FLOOR) {
+        stats->step_interval = result;
+    } else {
+        stats->step_interval = STEP_INTERVAL_FLOOR;
+    }
 }
 
 void stats_tick (Stats *stats) {

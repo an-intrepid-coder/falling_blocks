@@ -151,6 +151,8 @@ void draw_game (Playfield *playfield, Stats *stats, int color_mode) {
     static int last_rows, last_cols;
     int rows, cols;
 
+    erase(); 
+
     if (init) {
         getmaxyx(stdscr, last_rows, last_cols);
         init = false;
@@ -233,24 +235,42 @@ int convert_input (int input) {
     return return_value;
 }
 
-bool timer_reached (clock_t clock_last, int input_clock_type, Stats *stats) {
-    /* Checks the different clocks used to keep the game in-sync and returns
-     * true or false if the indicated timer is reached.  */
-    bool return_value = false;
-    double time_difference = (clock() - clock_last) / (double) CLOCKS_PER_SEC;
-    switch (input_clock_type) {
-        case FPS_CLOCK:
-            if (time_difference > FRAME_INTERVAL_IN_SECONDS) {
-                return_value = true;
-            }
-        break;
-        case STEP_CLOCK:
-            if (time_difference > stats->step_interval) {
-                return_value = true;
-            }
-        break;
+double get_elapsed(struct timespec *start) {
+    struct timespec end;
+
+    clock_gettime(CLOCK_REALTIME, &end);
+
+    double start_secs, end_secs;
+    start_secs = start->tv_sec + start->tv_nsec / (double) NSECS_PER_SEC;
+    end_secs = end.tv_sec + end.tv_nsec / (double) NSECS_PER_SEC;
+
+    return end_secs - start_secs;
+}
+
+bool state_timer_reached (Stats *stats, struct timespec *state_timer) {
+
+    double elapsed = get_elapsed(state_timer);
+
+    if (elapsed >= stats->step_interval) {
+        clock_gettime(CLOCK_REALTIME, state_timer);
+        return true;
     }
-    return return_value;
+
+    return false;
+}
+
+void frame_wait(struct timespec *loop_timer) {
+    double delay = get_elapsed(loop_timer);
+
+    mvprintw(0, 0, "loop delay: %F", delay);
+    mvprintw(1, 0, "effective FPS: %F", (double) (FRAME_INTERVAL - delay) * NSECS_PER_SEC);
+
+    struct timespec wait = {
+        0,
+        (double) (FRAME_INTERVAL - delay) * NSECS_PER_SEC,
+    };
+
+    nanosleep(&wait, NULL); 
 }
 
 void game_over () {
@@ -261,68 +281,67 @@ void game_over () {
     while (getch() != 113) {}
 }
 
-void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
-    clock_t fps_clock_last = clock();
-    clock_t step_clock_last = clock();
 
+void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
     srand((unsigned) time(NULL));
 
     Playfield playfield = playfield_constructor();
     Stats stats = stats_constructor();
 
-    int tetromino_topleft_x = rand() % 7;
-    int tetromino_type = rand() % 7;
+    int tetromino_topleft_x = rand() % SPAWN_LIMIT;
+    int tetromino_type = rand() % SPAWN_LIMIT;
 
     Tetromino tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x, 
                                                 &playfield);
 
+    struct timespec state_timer, loop_timer;
+    clock_gettime(CLOCK_REALTIME, &state_timer);
     while (!tetromino.game_over) {
-        if (timer_reached(fps_clock_last, FPS_CLOCK, &stats)){
-            int input;
-            
-            if (timer_reached(step_clock_last, STEP_CLOCK, &stats)) {
-                tetromino_move(&tetromino, &playfield, DOWN);
-                step_clock_last = clock();
-                stats_tick(&stats);
-            } else if ((input = getch()) != ERR) {
-                if (convert_input(input) == PAUSE) {
-                    stats.paused = true;
-                } else {
-                    tetromino_move(&tetromino, &playfield, convert_input(input));
-                }
-                while ((getch() != ERR)){}
+        int input;
+        clock_gettime(CLOCK_REALTIME, &loop_timer);
+ 
+        if (state_timer_reached(&stats, &state_timer)) {
+            tetromino_move(&tetromino, &playfield, DOWN);
+            stats_tick(&stats);
+        } else if ((input = getch()) != ERR) {
+            if (convert_input(input) == PAUSE) {
+                stats.paused = true;
+            } else {
+                tetromino_move(&tetromino, &playfield, convert_input(input));
             }
-
-            if (!tetromino_can_move(&tetromino, &playfield, DOWN)) {
-                tetromino_freeze(&tetromino, &playfield);
-                playfield_clear_lines(&playfield, &stats);
-                tetromino_topleft_x = rand() % SPAWN_LIMIT;
-                tetromino_type = rand() % SPAWN_LIMIT;
-                tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x,
-                                                  &playfield);
-                int spawn_rotations = rand() % SPAWN_LIMIT;
-                for (int rotations = 0; rotations < spawn_rotations; rotations++) {
-                    tetromino_move(&tetromino, &playfield, ROTATE);
-                }
-            }
-
-            if (stats_can_level_up(&stats)) {
-                stats_level_up(&stats, difficulty_level);
-            }
-        
-            if (stats.paused) {
-                nodelay(stdscr, false);
-                mvprintw(0, 0, "GAME PAUSED");
-                mvprintw(1, 0, "...any key to continue...");
-                getch();
-                stats.paused = false;
-                erase();
-                nodelay(stdscr, true);
-            }
-
-            draw_game(&playfield, &stats, color_mode);
-            fps_clock_last = clock();
+            while ((getch() != ERR)){}
         }
+
+        if (!tetromino_can_move(&tetromino, &playfield, DOWN)) {
+            tetromino_freeze(&tetromino, &playfield);
+            playfield_clear_lines(&playfield, &stats);
+            tetromino_topleft_x = rand() % SPAWN_LIMIT;
+            tetromino_type = rand() % SPAWN_LIMIT;
+            tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x,
+                                              &playfield);
+            int spawn_rotations = rand() % SPAWN_LIMIT;
+            for (int rotations = 0; rotations < spawn_rotations; rotations++) {
+                tetromino_move(&tetromino, &playfield, ROTATE);
+            }
+        }
+
+        if (stats_can_level_up(&stats)) {
+            stats_level_up(&stats, difficulty_level);
+        }
+    
+        if (stats.paused) {
+            nodelay(stdscr, false);
+            mvprintw(0, 0, "GAME PAUSED");
+            mvprintw(1, 0, "...any key to continue...");
+            getch();
+            stats.paused = false;
+            erase();
+            nodelay(stdscr, true);
+        }
+
+        draw_game(&playfield, &stats, color_mode);
+
+        frame_wait(&loop_timer);
     }
 }
 
@@ -360,3 +379,4 @@ int main (int argc, char *argv[]) {
 
     return EXIT_SUCCESS;
 }
+
