@@ -4,10 +4,11 @@ Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
                                  Playfield *playfield) {
     /* constructor for the tetromino object. Takes a type from 0-6 and an x-coordinate
      * between 0-8.  */
-    Tetromino new_tetromino;
-    new_tetromino.tetromino_type = tetromino_type;
-    new_tetromino.tetromino_configuration = FIRST;
-    new_tetromino.game_over = false;
+    Tetromino new_tetromino = {
+        .tetromino_type = tetromino_type,
+        .tetromino_configuration = FIRST,
+        .game_over = false,
+    };
 
     switch (tetromino_type) {
         /* The blocks are spawned according to a fixed scheme, relative to the "topleft" 

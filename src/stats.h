@@ -8,7 +8,7 @@
 
 #define EASY_JUMP (double) .025
 #define MEDIUM_JUMP (double) .05
-#define HARD_JUMP (double) .4
+#define HARD_JUMP (double) .1
 
 typedef enum {DIFFICULTY_EASY, DIFFICULTY_MEDIUM, DIFFICULTY_HARD} Difficulty_Levels;
 

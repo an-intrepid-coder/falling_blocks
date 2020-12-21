@@ -235,7 +235,7 @@ int convert_input (int input) {
     return return_value;
 }
 
-double get_elapsed(struct timespec *start) {
+double get_elapsed (struct timespec *start) {
     struct timespec end;
 
     clock_gettime(CLOCK_REALTIME, &end);
@@ -262,12 +262,9 @@ bool state_timer_reached (Stats *stats, struct timespec *state_timer) {
 void frame_wait(struct timespec *loop_timer) {
     double delay = get_elapsed(loop_timer);
 
-    mvprintw(0, 0, "loop delay: %F", delay);
-    mvprintw(1, 0, "effective FPS: %F", (double) (FRAME_INTERVAL - delay) * NSECS_PER_SEC);
-
     struct timespec wait = {
         0,
-        (double) (FRAME_INTERVAL - delay) * NSECS_PER_SEC,
+        (long int) (FRAME_INTERVAL - delay) * NSECS_PER_SEC,
     };
 
     nanosleep(&wait, NULL); 
@@ -281,6 +278,15 @@ void game_over () {
     while (getch() != 113) {}
 }
 
+void pause_game (Stats *stats) {
+    nodelay(stdscr, false);
+    mvprintw(0, 0, "GAME PAUSED");
+    mvprintw(1, 0, "...any key to continue...");
+    getch();
+    stats->paused = false;
+    erase();
+    nodelay(stdscr, true);
+}
 
 void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
     srand((unsigned) time(NULL));
@@ -330,13 +336,7 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
         }
     
         if (stats.paused) {
-            nodelay(stdscr, false);
-            mvprintw(0, 0, "GAME PAUSED");
-            mvprintw(1, 0, "...any key to continue...");
-            getch();
-            stats.paused = false;
-            erase();
-            nodelay(stdscr, true);
+            pause_game(&stats);
         }
 
         draw_game(&playfield, &stats, color_mode);
