@@ -1,12 +1,11 @@
 #include "stats.h"
 
 Stats stats_constructor () {
-
     Stats new_stats = {
         .score = 0,
         .ticks = 0,
         .level = 1,
-        .step_interval = DEFAULT_STEP_INTERVAL_NSEC,
+        .step_interval = DEFAULT_STEP_INTERVAL,
         .paused = false,
     };
 

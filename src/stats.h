@@ -3,8 +3,8 @@
 
 #define CLEAR_ROW_SCORE 10
 
-#define DEFAULT_STEP_INTERVAL_NSEC (double) 1.0
-#define STEP_INTERVAL_FLOOR (double) .122
+#define DEFAULT_STEP_INTERVAL (double) 1.0
+#define STEP_INTERVAL_FLOOR (double) .1
 
 #define EASY_JUMP (double) .025
 #define MEDIUM_JUMP (double) .05

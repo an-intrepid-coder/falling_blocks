@@ -1,0 +1,19 @@
+> add a "next" box.
+> Add flashing animation on line-clear.
+> Add animated background.
+> Add title screen
+> Wrap the arguments-checker in a function
+> Debug Options in the [OPTIONS] menu
+> Re-Do the HUD
+> Use 2 cells for each of the 4 blocks in every 
+  tetromino, to reduce some of the awkwardness of
+  rectangular character cells.
+> Completely re-do the tetrominos using memory
+  allocation and sane, re-usable functions.
+> A small debugging library
+> Change style to use superior bracing guidelines: 
+  e.g.:
+  if (blah)
+  {
+      //stuff
+  }

@@ -1,5 +1,47 @@
 #include "tetromino.h"
 
+Permutations_List permutations_list_constructor () {
+    /* A dynamic array that holds the available permutations.  */
+    Permutations_List new_list;
+
+    new_list.length = NUM_TYPES;
+    new_list.types = malloc(NUM_TYPES * sizeof(int));
+    if (new_list.types == NULL) {
+        exit(1);
+    }
+
+    for (int type = 0; type < NUM_TYPES; type++) {
+        new_list.types[type] = type;
+    }
+
+    return new_list;
+}
+
+int next_tetromino (Permutations_List *plist) {
+    /* Returns an available tetromino type from a permutations list,
+     * and then re-allocates it without the chosen element. Re-generates
+     * a brand new list of tetromino types if the final element was chosen.  */
+    int *new_types, choice = plist->types[rand() % plist->length];
+
+    plist->length -= 1;
+    if (plist->length == 0) {
+        free(plist->types);
+        *plist = permutations_list_constructor();
+    } else {
+        new_types = malloc(plist->length * sizeof(int));
+        for (int index = 0, count = 0; index < plist->length + 1; index++) {
+            if (plist->types[index] != choice) {
+                new_types[count] = plist->types[index];
+                count++;
+            }
+        }
+        free(plist->types);
+        plist->types = new_types;
+    }
+ 
+    return choice;
+}
+
 Tetromino tetromino_constructor (int tetromino_type, int topleft_x,
                                  Playfield *playfield) {
     /* constructor for the tetromino object. Takes a type from 0-6 and an x-coordinate

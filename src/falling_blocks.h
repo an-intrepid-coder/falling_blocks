@@ -48,10 +48,6 @@ int convert_input(int input);
 double get_elapsed(struct timespec *start);
 bool state_timer_reached (Stats *stats, struct timespec *state_timer);
 void a_game_of_falling_blocks (int difficulty_level, int color_mode);
-bool has_arguments (int argc, char *argv[]);
-int get_difficulty_mode (int argc, char *argv[]);
-int get_color_mode (int argc, char *argv[]);
-double get_clocks_per_sec();
 
 #endif
 

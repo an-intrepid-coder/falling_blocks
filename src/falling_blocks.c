@@ -294,15 +294,18 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
     Playfield playfield = playfield_constructor();
     Stats stats = stats_constructor();
 
+    Permutations_List plist = permutations_list_constructor();
     int tetromino_topleft_x = rand() % SPAWN_LIMIT;
-    int tetromino_type = rand() % SPAWN_LIMIT;
-
+    int tetromino_type = next_tetromino(&plist);
     Tetromino tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x, 
                                                 &playfield);
 
     struct timespec state_timer, loop_timer;
     clock_gettime(CLOCK_REALTIME, &state_timer);
     while (!tetromino.game_over) {
+        mvprintw(9, 0, "Current Tetromino Type: %d", tetromino.tetromino_type);
+        mvprintw(8, 0, "Current Tetromino Configuration: %d", tetromino.tetromino_configuration);
+
         int input;
         clock_gettime(CLOCK_REALTIME, &loop_timer);
  
@@ -322,7 +325,7 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
             tetromino_freeze(&tetromino, &playfield);
             playfield_clear_lines(&playfield, &stats);
             tetromino_topleft_x = rand() % SPAWN_LIMIT;
-            tetromino_type = rand() % SPAWN_LIMIT;
+            tetromino_type = next_tetromino(&plist);
             tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x,
                                               &playfield);
             int spawn_rotations = rand() % SPAWN_LIMIT;
@@ -343,6 +346,7 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
 
         frame_wait(&loop_timer);
     }
+    free(plist.types);
 }
 
 int main (int argc, char *argv[]) {

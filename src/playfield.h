@@ -11,7 +11,10 @@ typedef enum {FILL_EMPTY, FILL_SQUARE, FILL_STRAIGHT, FILL_SKEW_A, FILL_SKEW_B,
 
 typedef struct {
     /* The playfield object is just a collection of 2-D arrays representing
-     * the "cells" that are the fundamental units of the game.  */
+     * the "cells" that are the fundamental units of the game. In the future I want
+     * to expand this and make it more generic so I can use it with other kinds of
+     * games instead of just being hard-coded to play this one game, as I have currently
+     * written it.  */
     bool active_tetromino[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH]; 
     int fill_type[PLAYFIELD_HEIGHT][PLAYFIELD_WIDTH];
 } Playfield;
