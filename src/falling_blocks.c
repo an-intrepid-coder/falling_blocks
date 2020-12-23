@@ -141,9 +141,6 @@ void draw_hud (Stats *stats) {
 
     mvprintw(starting_yx.y + SCORE_LINE, starting_x, "Score: %d", stats->score);
     mvprintw(starting_yx.y + LEVEL_LINE, starting_x, "Level: %d", stats->level);
-    mvprintw(starting_yx.y + TICKS_LINE, starting_x, "Ticks: %d", stats->ticks);
-    mvprintw(starting_yx.y + STEP_LINE, starting_x, "Step Interval: %f seconds",
-             stats->step_interval);
 }
 
 void draw_game (Playfield *playfield, Stats *stats, int color_mode) {
@@ -288,7 +285,39 @@ void pause_game (Stats *stats) {
     nodelay(stdscr, true);
 }
 
-void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
+void print_debug (Stats *stats, Tetromino *tetromino, 
+                  Permutations_List *plist, struct timespec *loop_timer) {
+    /* Prints all kinds of information about the state of the program.  */
+    char buffer[150] = {0}, buffer2[5] = {0};
+    mvprintw(3, 0, "ticks: %ld", stats->ticks);
+    mvprintw(4, 0, "step/tick interval: %F", stats->step_interval);
+    mvprintw(5, 0, "current tetromino type: %d", tetromino->tetromino_type);
+    mvprintw(6, 0, "current tetromino configuration: %d", tetromino->tetromino_configuration);
+
+    sprintf(buffer, "block coords (y, x): (%d, %d), (%d, %d), (%d, %d), (%d, %d)", 
+            tetromino->blocks_yx[0].y, tetromino->blocks_yx[0].x, tetromino->blocks_yx[1].y, 
+            tetromino->blocks_yx[1].x, tetromino->blocks_yx[2].y, tetromino->blocks_yx[2].x, 
+            tetromino->blocks_yx[3].y, tetromino->blocks_yx[3].x);
+    mvprintw(7, 0, "%s", buffer);
+
+    mvprintw(8, 0, "permutation list length: %d", plist->length);
+    buffer[0] = '{';
+    buffer[1] = ' ';
+    int index = 2;
+    for (int count = 0; count < plist->length; count++) {
+        sprintf(buffer2, "%d", plist->types[count]);
+        buffer[index++] = buffer2[0];
+        buffer[index++] = ' ';
+    }
+    buffer[index++] = '}';
+    buffer[index++] = '\0';
+    mvprintw(9, 0, "permutation list: %s", buffer);
+
+    double elapsed = get_elapsed(loop_timer);
+    mvprintw(10, 0, "time since last frame: %F", elapsed);
+}
+
+void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) {
     srand((unsigned) time(NULL));
 
     Playfield playfield = playfield_constructor();
@@ -303,9 +332,6 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
     struct timespec state_timer, loop_timer;
     clock_gettime(CLOCK_REALTIME, &state_timer);
     while (!tetromino.game_over) {
-        mvprintw(9, 0, "Current Tetromino Type: %d", tetromino.tetromino_type);
-        mvprintw(8, 0, "Current Tetromino Configuration: %d", tetromino.tetromino_configuration);
-
         int input;
         clock_gettime(CLOCK_REALTIME, &loop_timer);
  
@@ -344,6 +370,10 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
 
         draw_game(&playfield, &stats, color_mode);
 
+        if (debug) {
+            print_debug(&stats, &tetromino, &plist, &loop_timer);
+        }
+
         frame_wait(&loop_timer);
     }
     free(plist.types);
@@ -351,14 +381,13 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode) {
 
 int main (int argc, char *argv[]) {
 
-    int difficulty_level = DIFFICULTY_MEDIUM;
-    int color_mode = MODE_NO_COLOR;
+    int difficulty_level = DIFFICULTY_MEDIUM, color_mode = MODE_NO_COLOR, debug = 0;
 
     char *difficulty_levels[] = {
-        "-easy", "-medium", "-hard"
+        "--easy", "--medium", "--hard"
     };
     char *color_modes[] = {
-        "-nocolor", "-ascii", "-solid"
+        "--nocolor", "--ascii", "--solid"
     };
 
     for (int arg = 1; arg < argc; arg++) {
@@ -370,12 +399,14 @@ int main (int argc, char *argv[]) {
             color_mode = MODE_ASCII_COLOR;
         } else if (strcmp(argv[arg], color_modes[2]) == 0) {
             color_mode = MODE_SOLID_COLOR;
+        } else if (strcmp(argv[arg], "--debug") == 0) {
+            debug = 1;
         }
     }
 
     init_curses();
    
-    a_game_of_falling_blocks(difficulty_level, color_mode);
+    a_game_of_falling_blocks(difficulty_level, color_mode, debug);
     
     game_over();
 

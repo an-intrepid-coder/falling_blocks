@@ -18,7 +18,7 @@
 #include "stats.h"
 
 // Enum for the hud display rows.
-typedef enum {SCORE_LINE, LEVEL_LINE, TICKS_LINE, STEP_LINE} Hud_Lines;
+typedef enum {SCORE_LINE, LEVEL_LINE} Hud_Lines;
 
 // Tetromino input enum 
 typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE, PAUSE} Input_Types;
@@ -40,6 +40,8 @@ typedef enum {MODE_NO_COLOR, MODE_ASCII_COLOR, MODE_SOLID_COLOR} Color_Modes;
 bool game_fits_screen ();
 void pause_game ();
 void draw_game (Playfield *playfield, Stats *stats, int color_mode);
+void print_debug (Stats *stats, Tetromino *tetromino, 
+                  Permutations_List *plist, struct timespec *loop_timer);
 void draw_playfield (Playfield *playfield, int mode);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
@@ -47,7 +49,7 @@ void uninit_curses (void);
 int convert_input(int input);
 double get_elapsed(struct timespec *start);
 bool state_timer_reached (Stats *stats, struct timespec *state_timer);
-void a_game_of_falling_blocks (int difficulty_level, int color_mode);
+void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug);
 
 #endif
 
