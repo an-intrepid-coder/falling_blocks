@@ -41,7 +41,7 @@ bool game_fits_screen ();
 void pause_game ();
 void draw_game (Playfield *playfield, Stats *stats, int color_mode);
 void print_debug (Stats *stats, Tetromino *tetromino, 
-                  Permutations_List *plist, struct timespec *loop_timer);
+                  Permutations_List *plist, double last_frame);
 void draw_playfield (Playfield *playfield, int mode);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);

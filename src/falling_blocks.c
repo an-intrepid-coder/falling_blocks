@@ -261,7 +261,7 @@ void frame_wait(struct timespec *loop_timer) {
 
     struct timespec wait = {
         0,
-        (long int) (FRAME_INTERVAL - delay) * NSECS_PER_SEC,
+        (long int) ((FRAME_INTERVAL - delay) * NSECS_PER_SEC),
     };
 
     nanosleep(&wait, NULL); 
@@ -286,7 +286,7 @@ void pause_game (Stats *stats) {
 }
 
 void print_debug (Stats *stats, Tetromino *tetromino, 
-                  Permutations_List *plist, struct timespec *loop_timer) {
+                  Permutations_List *plist, double last_frame) {
     /* Prints all kinds of information about the state of the program.  */
     char buffer[150] = {0}, buffer2[5] = {0};
     mvprintw(3, 0, "ticks: %ld", stats->ticks);
@@ -313,8 +313,7 @@ void print_debug (Stats *stats, Tetromino *tetromino,
     buffer[index++] = '\0';
     mvprintw(9, 0, "permutation list: %s", buffer);
 
-    double elapsed = get_elapsed(loop_timer);
-    mvprintw(10, 0, "time since last frame: %F", elapsed);
+    mvprintw(10, 0, "time since last frame(seconds): %F", last_frame);
 }
 
 void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) {
@@ -333,6 +332,10 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) 
     clock_gettime(CLOCK_REALTIME, &state_timer);
     while (!tetromino.game_over) {
         int input;
+        double since_last_frame;
+        if (debug) {
+            since_last_frame = get_elapsed(&loop_timer);
+        }
         clock_gettime(CLOCK_REALTIME, &loop_timer);
  
         if (state_timer_reached(&stats, &state_timer)) {
@@ -371,7 +374,7 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) 
         draw_game(&playfield, &stats, color_mode);
 
         if (debug) {
-            print_debug(&stats, &tetromino, &plist, &loop_timer);
+            print_debug(&stats, &tetromino, &plist, since_last_frame);
         }
 
         frame_wait(&loop_timer);
