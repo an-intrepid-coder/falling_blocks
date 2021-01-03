@@ -17,6 +17,58 @@ Permutations_List permutations_list_constructor () {
     return new_list;
 }
 
+void plist_set_buffer(int tetromino_type, Permutations_List *plist) {
+    for (int row = 0; row < NEXT_HEIGHT; row++) {
+        for (int col = 0; col < NEXT_WIDTH; col++) {
+            plist->next_buffer[row][col] = FILL_EMPTY;
+        }
+    }
+    switch (tetromino_type) {
+        case SQUARE:
+            plist->next_buffer[0][1] = FILL_SQUARE;
+            plist->next_buffer[0][2] = FILL_SQUARE;
+            plist->next_buffer[1][1] = FILL_SQUARE;
+            plist->next_buffer[1][2] = FILL_SQUARE;
+        break;
+        case STRAIGHT:
+            plist->next_buffer[1][0] = FILL_STRAIGHT;
+            plist->next_buffer[1][1] = FILL_STRAIGHT;
+            plist->next_buffer[1][2] = FILL_STRAIGHT;
+            plist->next_buffer[1][3] = FILL_STRAIGHT;
+        break;
+        case SKEW_A:
+            plist->next_buffer[0][2] = FILL_SKEW_A;
+            plist->next_buffer[0][3] = FILL_SKEW_A;
+            plist->next_buffer[1][1] = FILL_SKEW_A;
+            plist->next_buffer[1][2] = FILL_SKEW_A;
+        break;
+        case SKEW_B:
+            plist->next_buffer[0][1] = FILL_SKEW_B;
+            plist->next_buffer[0][2] = FILL_SKEW_B;
+            plist->next_buffer[1][2] = FILL_SKEW_B;
+            plist->next_buffer[1][3] = FILL_SKEW_B;
+        break;
+        case L_A:
+            plist->next_buffer[0][3] = FILL_L_A;
+            plist->next_buffer[1][1] = FILL_L_A;
+            plist->next_buffer[1][2] = FILL_L_A;
+            plist->next_buffer[1][3] = FILL_L_A;
+        break;
+        case L_B:
+            plist->next_buffer[0][1] = FILL_L_B;
+            plist->next_buffer[1][1] = FILL_L_B;
+            plist->next_buffer[1][2] = FILL_L_B;
+            plist->next_buffer[1][3] = FILL_L_B;
+        break;
+        case T:
+            plist->next_buffer[0][2] = FILL_T;
+            plist->next_buffer[1][1] = FILL_T;
+            plist->next_buffer[1][2] = FILL_T;
+            plist->next_buffer[1][3] = FILL_T;
+        break;
+    }
+}
+
 int next_tetromino (Permutations_List *plist) {
     /* Returns an available tetromino type from a permutations list,
      * and then re-allocates it without the chosen element. Re-generates
@@ -29,15 +81,19 @@ int next_tetromino (Permutations_List *plist) {
         *plist = permutations_list_constructor();
     } else {
         new_types = malloc(plist->length * sizeof(int));
+        if (new_types == NULL) {
+            exit(1);
+        }
         for (int index = 0, count = 0; index < plist->length + 1; index++) {
             if (plist->types[index] != choice) {
-                new_types[count] = plist->types[index];
-                count++;
+                new_types[count++] = plist->types[index];
             }
         }
         free(plist->types);
         plist->types = new_types;
     }
+
+    plist_set_buffer(choice, plist);
  
     return choice;
 }
@@ -245,7 +301,6 @@ void tetromino_freeze (Tetromino *tetromino, Playfield *playfield) {
                                    [tetromino->blocks_yx[block].x] = false;
     }
 }
-
 
 bool tetromino_can_rotate (Tetromino *tetromino, Playfield *playfield) {
     /* Returns true or false depending on whether or not the tetromino is able to rotate. This is

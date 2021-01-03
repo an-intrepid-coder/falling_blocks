@@ -28,122 +28,120 @@ Coord get_playfield_starting_yx (void) {
     return new_coord;
 }
 
-void draw_playfield (Playfield *playfield, int mode) {
-    /* Centers and displays the playfield. This is a naive version and needs serious
-     * optimization.  */
+Block_Attr get_block_attr(int color_mode, int fill_type) {
+    Block_Attr new_block;
+    new_block.symbol = ' ';
+    switch (color_mode) {
+        case MODE_NO_COLOR:
+            new_block.symbol = fill_type ? '#' : '.';
+        break;
+        case MODE_ASCII_COLOR:
+            switch (fill_type) {
+                case FILL_EMPTY:
+                    new_block.pair = PAIR_NORMAL;
+                    new_block.symbol = '.';
+                break;
+                case FILL_SQUARE: 
+                    new_block.pair = PAIR_SQUARE_ASCII;
+                    new_block.symbol = '#';
+                break;
+                case FILL_STRAIGHT:
+                    new_block.pair = PAIR_STRAIGHT_ASCII;
+                    new_block.symbol = '#';
+                break;
+                case FILL_SKEW_A:
+                    new_block.pair = PAIR_SKEW_A_ASCII;
+                    new_block.symbol = '#';
+                break;
+                case FILL_SKEW_B:
+                    new_block.pair = PAIR_SKEW_B_ASCII;
+                    new_block.symbol = '#';
+                break;
+                case FILL_L_A:
+                    new_block.pair = PAIR_L_A_ASCII;
+                    new_block.symbol = '#';
+                break;
+                case FILL_L_B:
+                    new_block.pair = PAIR_L_B_ASCII;
+                    new_block.symbol = '#';
+                break;
+                case FILL_T:
+                    new_block.pair = PAIR_T_ASCII;
+                    new_block.symbol = '#';
+                break;
+            }
+        break;
+        case MODE_SOLID_COLOR:
+            switch (fill_type) {
+                case FILL_EMPTY:
+                    new_block.pair = PAIR_NORMAL;
+                    new_block.symbol = '.';
+                break;
+                case FILL_SQUARE: 
+                    new_block.pair = PAIR_SQUARE_SOLID;
+                break;
+                case FILL_STRAIGHT:
+                    new_block.pair = PAIR_STRAIGHT_SOLID;
+                break;
+                case FILL_SKEW_A:
+                    new_block.pair = PAIR_SKEW_A_SOLID;
+                break;
+                case FILL_SKEW_B:
+                    new_block.pair = PAIR_SKEW_B_SOLID;
+                break;
+                case FILL_L_A:
+                    new_block.pair = PAIR_L_A_SOLID;
+                break;
+                case FILL_L_B:
+                    new_block.pair = PAIR_L_B_SOLID;
+                break;
+                case FILL_T:
+                    new_block.pair = PAIR_T_SOLID;
+                break;
+            }
+        break;
+    }
+
+    return new_block;
+}
+
+void draw_playfield (Playfield *playfield, int color_mode) {
     Coord starting_yx = get_playfield_starting_yx();
     for (int row = 0; row < PLAYFIELD_HEIGHT; row++) {
         for (int cell = 0; cell < PLAYFIELD_WIDTH; cell++) {
-            switch (mode) {
-                case MODE_ASCII_COLOR:
-                    switch (playfield->fill_type[row][cell]) {
-                        case FILL_EMPTY:
-                            attron(COLOR_PAIR(PAIR_NORMAL));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '.');
-                            attroff(COLOR_PAIR(PAIR_NORMAL));
-                        break;
-                        case FILL_SQUARE:
-                            attron(COLOR_PAIR(PAIR_SQUARE_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_SQUARE_ASCII));
-                        break;
-                        case FILL_STRAIGHT:
-                            attron(COLOR_PAIR(PAIR_STRAIGHT_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_STRAIGHT_ASCII));
-                        break;
-                        case FILL_SKEW_A:
-                            attron(COLOR_PAIR(PAIR_SKEW_A_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_SKEW_A_ASCII));
-                        break;
-                        case FILL_SKEW_B:
-                            attron(COLOR_PAIR(PAIR_SKEW_B_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_SKEW_B_ASCII));
-                        break;
-                        case FILL_L_A:
-                            attron(COLOR_PAIR(PAIR_L_A_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_L_A_ASCII));
-                        break;
-                        case FILL_L_B:
-                            attron(COLOR_PAIR(PAIR_L_B_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_L_B_ASCII));
-                        break;
-                        case FILL_T:
-                            attron(COLOR_PAIR(PAIR_T_ASCII));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                            attroff(COLOR_PAIR(PAIR_T_ASCII));
-                        break;
-                    }
-                break;
-                case MODE_SOLID_COLOR:
-                    switch (playfield->fill_type[row][cell]) {
-                        case FILL_EMPTY:
-                            attron(COLOR_PAIR(PAIR_NORMAL));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, '.');
-                            attroff(COLOR_PAIR(PAIR_NORMAL));
-                        break;
-                        case FILL_SQUARE:
-                            attron(COLOR_PAIR(PAIR_SQUARE_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_SQUARE_SOLID));
-                        break;
-                        case FILL_STRAIGHT:
-                            attron(COLOR_PAIR(PAIR_STRAIGHT_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_STRAIGHT_SOLID));
-                        break;
-                        case FILL_SKEW_A:
-                            attron(COLOR_PAIR(PAIR_SKEW_A_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_SKEW_A_SOLID));
-                        break;
-                        case FILL_SKEW_B:
-                            attron(COLOR_PAIR(PAIR_SKEW_B_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_SKEW_B_SOLID));
-                        break;
-                        case FILL_L_A:
-                            attron(COLOR_PAIR(PAIR_L_A_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_L_A_SOLID));
-                        break;
-                        case FILL_L_B:
-                            attron(COLOR_PAIR(PAIR_L_B_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_L_B_SOLID));
-                        break;
-                        case FILL_T:
-                            attron(COLOR_PAIR(PAIR_T_SOLID));
-                            mvaddch(starting_yx.y + row, starting_yx.x + cell, ' ');
-                            attroff(COLOR_PAIR(PAIR_T_SOLID));
-                        break;
-                    }   
-                break;
-                case MODE_NO_COLOR:
-                    if (playfield->fill_type[row][cell]) {
-                        mvaddch(starting_yx.y + row, starting_yx.x + cell, '#');
-                    } else {
-                        mvaddch(starting_yx.y + row, starting_yx.x + cell, '.');
-                    }
-                break;
-            }
+            Block_Attr next_block = get_block_attr(color_mode, 
+                                                   playfield->fill_type[row][cell]);
+            attron(COLOR_PAIR(next_block.pair));
+            mvaddch(starting_yx.y + row, starting_yx.x + cell, next_block.symbol);
+            attroff(COLOR_PAIR(next_block.pair));
         }
     }
 }
 
-void draw_hud (Stats *stats) {
+void draw_next(int y, int x, int color_mode, Permutations_List *plist) {
+    /* Draws a representation of the next tetromino.  */
+    for (int row = 0; row < NEXT_HEIGHT; row++) {
+        for (int col = 0; col < NEXT_WIDTH; col++) {
+            Block_Attr next_block = get_block_attr(color_mode, plist->next_buffer[row][col]);
+            attron(COLOR_PAIR(next_block.pair));
+            mvaddch(y + row, x + col, next_block.symbol);
+            attroff(COLOR_PAIR(next_block.pair));
+        }
+    }
+}
+
+void draw_hud (Stats *stats, int color_mode, Permutations_List *plist) {
     Coord starting_yx = get_playfield_starting_yx();
     int starting_x = starting_yx.x + PLAYFIELD_WIDTH;
 
     mvprintw(starting_yx.y + SCORE_LINE, starting_x, "Score: %d", stats->score);
     mvprintw(starting_yx.y + LEVEL_LINE, starting_x, "Level: %d", stats->level);
+    mvprintw(starting_yx.y + NEXT_LINE, starting_x, "Next Tetromino:");
+    draw_next(starting_yx.y + NEXT_LINE + 1, starting_x + 4, color_mode, plist);
 }
 
-void draw_game (Playfield *playfield, Stats *stats, int color_mode) {
+void draw_game (Playfield *playfield, Stats *stats, Permutations_List *plist, 
+                int color_mode) {
     static bool init = true;
     static int last_rows, last_cols;
     int rows, cols;
@@ -163,7 +161,7 @@ void draw_game (Playfield *playfield, Stats *stats, int color_mode) {
     }
 
     draw_playfield(playfield, color_mode);
-    draw_hud(stats);
+    draw_hud(stats, color_mode, plist);
 }
 
 // A couple of curses wrappers
@@ -323,10 +321,9 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) 
     Stats stats = stats_constructor();
 
     Permutations_List plist = permutations_list_constructor();
-    int tetromino_topleft_x = rand() % SPAWN_LIMIT;
-    int tetromino_type = next_tetromino(&plist);
-    Tetromino tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x, 
-                                                &playfield);
+    int tetromino_topleft_x = rand() % SPAWN_LIMIT, next = next_tetromino(&plist);
+    Tetromino tetromino = tetromino_constructor(next, tetromino_topleft_x, &playfield);
+    next = next_tetromino(&plist);
 
     struct timespec state_timer, loop_timer;
     clock_gettime(CLOCK_REALTIME, &state_timer);
@@ -354,9 +351,8 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) 
             tetromino_freeze(&tetromino, &playfield);
             playfield_clear_lines(&playfield, &stats);
             tetromino_topleft_x = rand() % SPAWN_LIMIT;
-            tetromino_type = next_tetromino(&plist);
-            tetromino = tetromino_constructor(tetromino_type, tetromino_topleft_x,
-                                              &playfield);
+            tetromino = tetromino_constructor(next, tetromino_topleft_x, &playfield);
+            next = next_tetromino(&plist);
             int spawn_rotations = rand() % SPAWN_LIMIT;
             for (int rotations = 0; rotations < spawn_rotations; rotations++) {
                 tetromino_move(&tetromino, &playfield, ROTATE);
@@ -371,7 +367,7 @@ void a_game_of_falling_blocks (int difficulty_level, int color_mode, int debug) 
             pause_game(&stats);
         }
 
-        draw_game(&playfield, &stats, color_mode);
+        draw_game(&playfield, &stats, &plist, color_mode);
 
         if (debug) {
             print_debug(&stats, &tetromino, &plist, since_last_frame);

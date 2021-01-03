@@ -3,6 +3,8 @@
 
 #define NUM_BLOCKS 4
 #define NUM_TYPES 7
+#define NEXT_WIDTH 4
+#define NEXT_HEIGHT 2
 
 #include "coord.h"
 #include "playfield.h"
@@ -29,10 +31,12 @@ typedef struct {
 typedef struct {
     int length;
     int *types;
+    int next_buffer[NEXT_HEIGHT][NEXT_WIDTH];
 } Permutations_List;
 
 Permutations_List new_permutations_list ();
 int next_tetromino (Permutations_List *plist);
+void plist_set_buffer(int tetromino_type, Permutations_List *plist);
 
 Tetromino tetromino_constructor (int tetromino_type, int topleft_x, Playfield *playfield);
 bool tetromino_can_move (Tetromino *tetromino, Playfield *playfield, int mvdir);

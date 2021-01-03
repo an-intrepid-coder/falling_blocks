@@ -18,7 +18,7 @@
 #include "stats.h"
 
 // Enum for the hud display rows.
-typedef enum {SCORE_LINE, LEVEL_LINE} Hud_Lines;
+typedef enum {SCORE_LINE = 0, LEVEL_LINE = 2, NEXT_LINE = 4} Hud_Lines;
 
 // Tetromino input enum 
 typedef enum {DIRECTION_NONE, DOWN, LEFT, RIGHT, ROTATE, PAUSE} Input_Types;
@@ -34,15 +34,23 @@ typedef enum {
     PAIR_L_A_SOLID, PAIR_L_B_SOLID, PAIR_T_SOLID
 } Color_Pairs;
 
+typedef struct {
+    int pair;
+    int symbol;
+} Block_Attr;
+
 // Color modes
 typedef enum {MODE_NO_COLOR, MODE_ASCII_COLOR, MODE_SOLID_COLOR} Color_Modes;
 
 bool game_fits_screen ();
 void pause_game ();
-void draw_game (Playfield *playfield, Stats *stats, int color_mode);
+Block_Attr get_block_attr(int color_mode, int fill_type);
+void draw_game (Playfield *playfield, Stats *stats, Permutations_List *plist, 
+                int color_mode);
 void print_debug (Stats *stats, Tetromino *tetromino, 
                   Permutations_List *plist, double last_frame);
-void draw_playfield (Playfield *playfield, int mode);
+void draw_playfield (Playfield *playfield, int color_mode);
+void draw_hud (Stats *stats, int color_mode, Permutations_List *plist);
 Coord get_playfield_starting_yx (void);
 void init_curses (void);
 void uninit_curses (void);
