@@ -1,10 +1,10 @@
 # FALLING BLOCKS
 
-#### w/ `-solid` color mode:
-![Gameplay Image](images/gameplay.jpg)
+#### w/ `--solid` color mode:
+![Gameplay Image](images/solid.png)
 
-#### w/ `-ascii` color mode:
-![Gameplay Image](images/gameplay2.jpg)
+#### w/ `--ascii` color mode:
+![Gameplay Image](images/ascii.png)
 
 **Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. **'a', 's', 'd'** keys to move left, down, and right. **'f'** key to rotate the tetromino. **'p'** to pause the game. Press **'CTRL+C'** to exit, except during the game over screen when you'll be prompted to quit with **'q'**. 
 

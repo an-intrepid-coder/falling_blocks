@@ -4,8 +4,8 @@ BUILDFLAGS := -O2
 DEBUGFLAGS := -g -Wall -Wextra
 LDFLAGS :=
 LIBS := -lncurses
-
-build: src/falling_blocks.c
+	
+$(PROG): src/falling_blocks.c
 	$(CC) $(BUILDFLAGS) -o $(PROG) $< $(LDFLAGS) $(LIBS)
 
 debug: src/falling_blocks.c
