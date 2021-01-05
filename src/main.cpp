@@ -2,6 +2,7 @@
 #include <thread>
 
 #include "playfield.cpp"
+#include "tetromino.cpp"
 
 using std::this_thread::sleep_for;
 
@@ -13,6 +14,9 @@ void init_curses (void) {
     cbreak();
     curs_set(0);
     nodelay(stdscr, true);
+    if (has_colors()) {
+        start_color();
+    }
 }
 
 void uninit_curses (void) {
@@ -23,21 +27,25 @@ void uninit_curses (void) {
     endwin();
 }
 
-void draw_game(Playfield playfield) { 
+void draw_game(Playfield& playfield, Tetromino& tetromino) { 
     erase();
 
     int max_height, max_width;
     getmaxyx(stdscr, max_height, max_width);
 
-    // Making it a const reference seems to prevent me from using getters. That suggests
-    // I'm missing a step, as surely using getters on a const reference is okay. Something
-    // to look into later. I should re-read the chapter that covered this, and also
-    // search for a more comprehensive source. This is an important aspect of the
-    // language to get right.
     Coord playfield_origin = Coord(max_height / 2 - playfield.get_rows() / 2,
                                    max_width / 2 - playfield.get_cols() / 2);
 
     playfield.draw(playfield_origin);
+
+    attron(COLOR_PAIR(tetromino.get_type()));
+    vector<Block> blocks = tetromino.get_filled_blocks();
+    for (Block block : blocks) {
+        Coord coord = block.get_coord();
+        mvaddch(playfield_origin.get_y() + coord.get_y(), 
+                playfield_origin.get_x() + coord.get_x(), '#');
+    }
+    attroff(COLOR_PAIR(tetromino.get_type()));
 
     refresh();
 }
@@ -46,9 +54,10 @@ int main() {
 
     init_curses();
 
-    Playfield testPlayfield = Playfield(24, 10);
+    Playfield playfield = Playfield(24, 10);
+    Tetromino tetromino = Tetromino(Coord(5, 2), TETROMINO_L_B);
 
-    draw_game(testPlayfield);
+    draw_game(playfield, tetromino);
     sleep_for(3000ms);
 
     uninit_curses();

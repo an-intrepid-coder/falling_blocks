@@ -35,7 +35,8 @@ class Cell {
     /* The Cell represents the attributes of a character cell within the playfield,
      * and is a place to collect information about what should be printed.  */
     public:
-        Cell(int color, char symbol, Coord coord) : color(color), symbol(symbol), coord(coord) {}
+        Cell(int color, char symbol, Coord coord) : color(color), symbol(symbol), 
+             coord(coord) {}
    
         int get_color() {
             return color;
@@ -65,9 +66,7 @@ class Cell {
 
 class Playfield { 
      /* The Playfield represents the character-cell buffer that is analogous
-     * to a pixel buffer. For now I am going to use the default terminal colors
-     * only. I will integrate custom color pairs later. I suppose I should wrap the
-     * the initialization of colors in here.  */
+     * to a pixel buffer.  */
     public:
         Playfield(int rows, int cols) : rows(rows), cols(cols) {
             /* All cells are initially set to black background/white foreground with

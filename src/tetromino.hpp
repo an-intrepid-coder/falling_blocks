@@ -4,7 +4,9 @@
 
 enum { TETROMINO_NONE, TETROMINO_SQUARE, TETROMINO_STRAIGHT, 
        TETROMINO_SKEW_A, TETROMINO_SKEW_B, TETROMINO_L_A,
-       TETROMINO_L_B, TETROMINO_T } TetrominoTypes;
+       TETROMINO_L_B, TETROMINO_T }; //TetrominoTypes;
+
+class Tetromino;
 
 #endif
 
