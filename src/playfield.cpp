@@ -35,8 +35,9 @@ class Cell {
     /* The Cell represents the attributes of a character cell within the playfield,
      * and is a place to collect information about what should be printed.  */
     public:
-        Cell(int color, char symbol, Coord coord) : color(color), symbol(symbol), 
-             coord(coord) {}
+        Cell(int color, Coord coord) : color(color), coord(coord) {
+            filled = false;
+        }
    
         int get_color() {
             return color;
@@ -46,21 +47,21 @@ class Cell {
             color = c;
         }
 
-        char get_symbol() {
-            return symbol;
-        }
-
-        void set_symbol(char s) {
-            symbol = s;
-        }
-
         Coord get_coord() {
             return coord;
         }
 
+        bool get_filled() {
+            return filled;
+        }
+
+        void set_filled(bool set) {
+            filled = set;
+        }
+
     private:
         int color;
-        char symbol;
+        bool filled;
         Coord coord;
 };
 
@@ -75,7 +76,7 @@ class Playfield {
             for (auto row = 0; row < rows; row++) {
                 vector<Cell> new_row;
                 for (auto col = 0; col < cols; col++) {
-                    new_row.push_back(Cell(BLACK_BG_WHITE_FG, '.', Coord(row, col)));
+                    new_row.push_back(Cell(BLACK_BG_WHITE_FG, Coord(row, col)));
                 }
                 buffer.push_back(new_row);
             }
@@ -107,7 +108,8 @@ class Playfield {
             for (auto row = 0; row < rows; row++) {
                 for (auto col = 0; col < cols; col++) {
                     int pair = buffer[row][col].get_color();
-                    char symbol = buffer[row][col].get_symbol();
+                    bool filled = buffer[row][col].get_filled();
+                    char symbol = filled ? '#' : '.';
 
                     if (color)
                         attron(COLOR_PAIR(pair));
@@ -118,6 +120,10 @@ class Playfield {
                         attroff(COLOR_PAIR(pair));
                 }
             }
+        }
+
+        Cell& get_cell(Coord target) {
+            return buffer[target.get_y()][target.get_x()];
         }
  
     private:

@@ -23,10 +23,6 @@ class Block {
             return type;
         }
 
-        void set_type(int new_type) {
-            type = new_type;
-        }
-
         bool get_filled() {
             return filled;
         }
@@ -42,6 +38,42 @@ class Block {
 };
 
 class Tetromino {
+    class MoveDirs {
+        public:
+            MoveDirs(int dir) {
+                switch(dir) {
+                    case MOVE_LEFT:
+                        dy = 0;
+                        dx = -1;
+                    break;
+                    case MOVE_RIGHT:
+                        dy = 0;
+                        dx = 1;
+                    break;
+                    case MOVE_DOWN:
+                        dy = 1;
+                        dx = 0;
+                    break;
+                    default:
+                        dy = 0;
+                        dx = 0;
+                    break;
+                }
+            }
+
+            int get_dy() {
+                return dy;
+            }
+
+            int get_dx() {
+                return dx;
+            }
+
+        private:
+            int dy;
+            int dx;
+    };
+
     public:
         Tetromino(Coord origin, int type) : type(type) {
             if (type == TETROMINO_STRAIGHT) {
@@ -125,13 +157,44 @@ class Tetromino {
             return filled;
         }
 
-        // The following functions are rough concepts and may need more parameters:
-        void move() {
-            // Will control down/left/right movement.
+        void move(Playfield& playfield, int dir) {
+            bool valid = true;
+            MoveDirs deltas = Tetromino::MoveDirs(dir);
+            vector<Block> filled = get_filled_blocks();
+
+            for (Block block : filled) {
+                Coord old_coord = block.get_coord();
+                Coord new_coord = Coord(old_coord.get_y() + deltas.get_dy(),
+                                        old_coord.get_x() + deltas.get_dx());
+
+                if (new_coord.get_x() < 0 || new_coord.get_x() >= playfield.get_cols()) {
+                    valid = false;
+                    break;
+                }
+
+                Cell& target = playfield.get_cell(new_coord);
+                if (target.get_filled()) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            if (valid) {
+                for (vector<Block>& row : buffer) {
+                    for (Block& block : row) {
+                        Coord old_coord = block.get_coord();
+                        block.set_coord(Coord(old_coord.get_y() + deltas.get_dy(),
+                                              old_coord.get_x() + deltas.get_dx()));
+                    }
+                }
+            }
         }
 
+        // The following functions are rough concepts and may need more parameters:
         void rotate() {
-            // Will control clockwise or counterclockwise rotation.
+            // Will handle rotation. Not only will this need to rotate the "sprite"-like
+            // tetromino object, but it will also need to account for the potential
+            // "wobble" effect.
         }
 
         bool resting() {

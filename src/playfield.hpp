@@ -9,6 +9,7 @@ enum { BLACK_BG_BLACK_FG, BLACK_BG_WHITE_FG, BLACK_BG_RED_FG,
        BLACK_BG_CYAN_FG, BLACK_BG_MAGENTA_FG }; //ColorPairs;
 
 class Coord;
+class Playfield;
 
 #endif
 

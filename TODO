@@ -1,3 +1,6 @@
+> Ensure snake_case for variable names and member 
+  functions, and UpperCamelCase for class names,
+  enums, and structs.
 > Translate the *entire project* to C++
 > Improve the score system
 > Learn more about Makefiles
