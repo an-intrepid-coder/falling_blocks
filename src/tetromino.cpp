@@ -157,6 +157,17 @@ class Tetromino {
             return filled;
         }
 
+        bool in_play(Playfield& playfield) {
+            for (vector<Block>& row : buffer) {
+                for (Block& block : row) {
+                    Coord coord = block.get_coord();
+                    if (coord.get_y() < 0 || coord.get_y() >= playfield.get_rows())
+                        return false;
+                }
+            }
+            return true;
+        }
+
         void move(Playfield& playfield, int dir) {
             bool valid = true;
             MoveDirs deltas = Tetromino::MoveDirs(dir);
@@ -172,10 +183,12 @@ class Tetromino {
                     break;
                 }
 
-                Cell& target = playfield.get_cell(new_coord);
-                if (target.get_filled()) {
-                    valid = false;
-                    break;
+                if (in_play(playfield)) {
+                    Cell& target = playfield.get_cell(new_coord);
+                    if (target.get_filled()) {
+                        valid = false;
+                        break;
+                    }
                 }
             }
 
@@ -197,10 +210,20 @@ class Tetromino {
             // "wobble" effect.
         }
 
-        bool resting() {
-            // Will return true if the tetromino is resting on at the bottom of the playfield
-            // or on top of another tetromino. A "grace period" can also be built in here, to
-            // replicate common functionality.
+        bool resting(Playfield& playfield) {
+            vector<Block> filled = get_filled_blocks();
+            for (Block block : filled) {
+                Coord coord = block.get_coord();
+                if (coord.get_y() == playfield.get_rows() - 1)
+                    return true;
+
+                if (coord.get_y() > 0 || coord.get_y() < playfield.get_rows() - 1) {
+                    Cell& cell = playfield.get_cell(Coord(coord.get_y(), coord.get_x() + 1));
+                    if (cell.get_filled())
+                        return true;
+                }
+            }
+            return false;
         }
 
         void freeze() {

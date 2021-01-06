@@ -1,10 +1,16 @@
 #include <chrono>
 #include <thread>
+#include <random>
 
 #include "playfield.cpp"
 #include "tetromino.cpp"
 
+using std::linear_congruential_engine;
 using std::this_thread::sleep_for;
+using std::chrono::system_clock;
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
+using std::chrono::milliseconds;
 
 using namespace std::chrono_literals;
 
@@ -42,8 +48,10 @@ void draw_game(Playfield& playfield, Tetromino& tetromino) {
     vector<Block> blocks = tetromino.get_filled_blocks();
     for (Block block : blocks) {
         Coord coord = block.get_coord();
-        mvaddch(playfield_origin.get_y() + coord.get_y(), 
-            playfield_origin.get_x() + coord.get_x(), '#');
+        if (coord.get_y() >= 0 && coord.get_y() < playfield.get_rows()) {
+            mvaddch(playfield_origin.get_y() + coord.get_y(), 
+                playfield_origin.get_x() + coord.get_x(), '#');
+        }
     }
     attroff(COLOR_PAIR(tetromino.get_type()));
 
@@ -77,37 +85,52 @@ int convert_input(int input) {
     return return_value;
 }
 
+// Should I factor this into a class? I think so.
 void falling_blocks() {
-    Playfield playfield = Playfield(24, 10);
-    // To-Do: Randomized batch-based tetromino-generation:
-    Tetromino tetromino = Tetromino(Coord(0, 0), TETROMINO_L_B);
+    unsigned long int seed = system_clock::to_time_t(system_clock::now());
+    linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647> generator = 
+        linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647>(seed);
 
-    //naive loop then I'll add/cut as needed for a cleaner version 
+    Playfield playfield = Playfield(PLAYFIELD_HEIGHT, PLAYFIELD_WIDTH);
+
+    // To-Do: Pre-rotate new tetrominos
+    Tetromino tetromino = Tetromino(Coord(START_ROW, generator() % START_COL_LIMIT),
+                                    (generator() % NUM_TETROMINOS) + 1);
+
+    auto gravity_threshold = 1000; // programatically reducible
+    milliseconds gravity_threshold_ms{gravity_threshold};
+    auto gravity_clock = high_resolution_clock::now();
     for (;;) {
-
         int input = convert_input(getch());
 
-        if (input == MOVE_LEFT || input == MOVE_RIGHT || input == MOVE_DOWN) {
-            tetromino.move(playfield, input);
+        duration<double, std::milli> elapsed = high_resolution_clock::now() - gravity_clock;
+        if (elapsed > gravity_threshold_ms) {
+            tetromino.move(playfield, MOVE_DOWN);
+            gravity_clock = high_resolution_clock::now();
         }
 
+        if (input == MOVE_LEFT || input == MOVE_RIGHT || input == MOVE_DOWN)
+            tetromino.move(playfield, input);
+/*
+        if (tetromino.resting(playfield)) {
+            tetromino.freeze(playfield);
+        }
+*/
         draw_game(playfield, tetromino);
-        
-        // debug: The block is not actually staying moved!
+
+        // debug
+        mvprintw(0, 0, "%F", elapsed);
         vector<Block> filled = tetromino.get_filled_blocks();
-        Coord filled_coord = filled[0].get_coord();
-        mvprintw(0, 0, "A Filled Block: (%d, %d)", 
-                 filled_coord.get_y(), filled_coord.get_x());
+        mvprintw(1, 0, "Num filled: %d", filled.size());
+        //Coord test = filled[0].get_coord();
+        //mvprintw(2, 0, "sample coord: (%d, %d)", test.get_y(), test.get_x());
         refresh();
-        ///
+        ///       
+ 
         sleep_for(33ms); //hardcoded FPS for the moment
     }
 }
 
-// Next task should be the game loop, I suppose. This part will be the most
-// different, aside from rotation itself, due to the OOP changes of C++. I suppose
-// I could even make a game object; I should consider that as I go. That's basically
-// what the stats object was.
 int main() {
     init_curses();
 
