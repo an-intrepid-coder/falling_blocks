@@ -102,8 +102,11 @@ void falling_blocks() {
             gravity_clock = high_resolution_clock::now();
         }
 
-        if (input == MOVE_LEFT || input == MOVE_RIGHT || input == MOVE_DOWN)
+        if (input == MOVE_LEFT || input == MOVE_RIGHT || input == MOVE_DOWN) {
             tetromino.move(playfield, input);
+        } else if (input == MOVE_ROTATE) {
+            tetromino.rotate(playfield);
+        }
 
         if (tetromino.resting(playfield)) {  
             if (game_over(tetromino))

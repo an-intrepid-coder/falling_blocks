@@ -198,11 +198,48 @@ class Tetromino {
             }
         }
 
-        // This part is gonna be sweet. Time to build a generic formula:
-        void rotate() {
-            // Will handle rotation. Not only will this need to rotate the "sprite"-like
-            // tetromino object, but it will also need to account for the potential
-            // "wobble" effect.
+        // Well, that's almost perfect and it's about 10x shorter than my last version!
+        /* Remaining challenges:
+         *  1. "wobble", can be fixed with an offset probably. Looks silly for now.
+         *     The issue is that they should appear to spin about around the bottom-
+         *     center-ish of the tetromino, rather than the center of an invisible tile.
+         *     Easily fixed on a per-tetromino-basis, but I am interested in general
+         *     solutions. The most elegant solution may be to use a uniformly-sized tile
+         *     for each block, with the tetromino at the center. Exactly like a sprite.  */
+        void rotate(Playfield& playfield) {
+            if (type == TETROMINO_SQUARE)
+                return;
+
+            vector<vector<Block>> new_buffer;
+            for (vector<Block> row : buffer) {
+                vector<Block> new_row;
+                for (Block block : row) {
+                    new_row.push_back(Block(block.get_coord(), type));
+                }
+                new_buffer.push_back(new_row);
+            }
+            
+            bool valid = true;
+            for (int row = 0; row < (int) new_buffer.size(); row++) {
+                for (int col = 0; col < (int) new_buffer.size(); col++) {
+                    int dy = 0 - row + col, dx = new_buffer.size() - 1 - row - col;
+
+                    //aha
+                    Coord target_coord = buffer[row + dy][col + dx].get_coord();
+                    if (target_coord.get_y() >= 0) {                    
+                        Cell& target = playfield.get_cell(target_coord);
+                        if (target.get_filled()) {
+                            valid = false;
+                            break;
+                        }
+                    }
+
+                    if (buffer[row][col].get_filled())
+                        new_buffer[row + dy][col + dx].set_filled(true);
+                }
+            }
+            if (valid)
+                buffer = new_buffer;
         }
 
         bool resting(Playfield& playfield) {
