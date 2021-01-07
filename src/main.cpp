@@ -1,13 +1,11 @@
 #include <chrono>
 #include <thread>
-#include <random>
 
 #include "playfield.cpp"
 #include "tetromino.cpp"
 
-using std::linear_congruential_engine;
+
 using std::this_thread::sleep_for;
-using std::chrono::system_clock;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::chrono::milliseconds;
@@ -44,16 +42,7 @@ void draw_game(Playfield& playfield, Tetromino& tetromino) {
 
     playfield.draw(playfield_origin);
 
-    attron(COLOR_PAIR(tetromino.get_type()));
-    vector<Block> blocks = tetromino.get_filled_blocks();
-    for (Block block : blocks) {
-        Coord coord = block.get_coord();
-        if (coord.get_y() >= 0 && coord.get_y() < playfield.get_rows()) {
-            mvaddch(playfield_origin.get_y() + coord.get_y(), 
-                playfield_origin.get_x() + coord.get_x(), '#');
-        }
-    }
-    attroff(COLOR_PAIR(tetromino.get_type()));
+    tetromino.draw(playfield_origin);
 
     refresh();
 }
@@ -85,17 +74,21 @@ int convert_input(int input) {
     return return_value;
 }
 
+bool game_over(Tetromino& tetromino) {
+    vector<Block> filled = tetromino.get_filled_blocks();
+    for (Block block : filled) {
+        if (block.get_coord().get_y() < 0)
+            return true;
+    }
+    return false;
+}
+
 // Should I factor this into a class? I think so.
 void falling_blocks() {
-    unsigned long int seed = system_clock::to_time_t(system_clock::now());
-    linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647> generator = 
-        linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647>(seed);
-
+    TetrominoGenerator generator = TetrominoGenerator();
     Playfield playfield = Playfield(PLAYFIELD_HEIGHT, PLAYFIELD_WIDTH);
-
     // To-Do: Pre-rotate new tetrominos
-    Tetromino tetromino = Tetromino(Coord(START_ROW, generator() % START_COL_LIMIT),
-                                    (generator() % NUM_TETROMINOS) + 1);
+    Tetromino tetromino = generator.next();
 
     auto gravity_threshold = 1000; // programatically reducible
     milliseconds gravity_threshold_ms{gravity_threshold};
@@ -104,29 +97,23 @@ void falling_blocks() {
         int input = convert_input(getch());
 
         duration<double, std::milli> elapsed = high_resolution_clock::now() - gravity_clock;
-        if (elapsed > gravity_threshold_ms) {
+        if (elapsed > gravity_threshold_ms && input != MOVE_DOWN) { 
             tetromino.move(playfield, MOVE_DOWN);
             gravity_clock = high_resolution_clock::now();
         }
 
         if (input == MOVE_LEFT || input == MOVE_RIGHT || input == MOVE_DOWN)
             tetromino.move(playfield, input);
-/*
-        if (tetromino.resting(playfield)) {
+
+        if (tetromino.resting(playfield)) {  
+            if (game_over(tetromino))
+                break;  // placeholder
             tetromino.freeze(playfield);
+            tetromino = generator.next();
         }
-*/
+
         draw_game(playfield, tetromino);
 
-        // debug
-        mvprintw(0, 0, "%F", elapsed);
-        vector<Block> filled = tetromino.get_filled_blocks();
-        mvprintw(1, 0, "Num filled: %d", filled.size());
-        //Coord test = filled[0].get_coord();
-        //mvprintw(2, 0, "sample coord: (%d, %d)", test.get_y(), test.get_x());
-        refresh();
-        ///       
- 
         sleep_for(33ms); //hardcoded FPS for the moment
     }
 }

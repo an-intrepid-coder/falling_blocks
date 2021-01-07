@@ -1,9 +1,15 @@
 #include <vector>
+#include <deque>
+#include <random>
+#include <ncurses.h>
 
 #include "tetromino.hpp"
 #include "playfield.hpp"
 
 using std::vector;
+using std::deque;
+using std::chrono::system_clock;
+using std::linear_congruential_engine;
 
 class Block {
     public:
@@ -157,17 +163,6 @@ class Tetromino {
             return filled;
         }
 
-        bool in_play(Playfield& playfield) {
-            for (vector<Block>& row : buffer) {
-                for (Block& block : row) {
-                    Coord coord = block.get_coord();
-                    if (coord.get_y() < 0 || coord.get_y() >= playfield.get_rows())
-                        return false;
-                }
-            }
-            return true;
-        }
-
         void move(Playfield& playfield, int dir) {
             bool valid = true;
             MoveDirs deltas = Tetromino::MoveDirs(dir);
@@ -183,7 +178,7 @@ class Tetromino {
                     break;
                 }
 
-                if (in_play(playfield)) {
+                if (new_coord.get_y() >= 0) {
                     Cell& target = playfield.get_cell(new_coord);
                     if (target.get_filled()) {
                         valid = false;
@@ -203,7 +198,7 @@ class Tetromino {
             }
         }
 
-        // The following functions are rough concepts and may need more parameters:
+        // This part is gonna be sweet. Time to build a generic formula:
         void rotate() {
             // Will handle rotation. Not only will this need to rotate the "sprite"-like
             // tetromino object, but it will also need to account for the potential
@@ -211,14 +206,16 @@ class Tetromino {
         }
 
         bool resting(Playfield& playfield) {
+            /* TO-DO: Add a timer for the "grace-period" that lets you slide the block
+             * for just a split second before it freezes into place.  */
             vector<Block> filled = get_filled_blocks();
             for (Block block : filled) {
                 Coord coord = block.get_coord();
                 if (coord.get_y() == playfield.get_rows() - 1)
                     return true;
 
-                if (coord.get_y() > 0 || coord.get_y() < playfield.get_rows() - 1) {
-                    Cell& cell = playfield.get_cell(Coord(coord.get_y(), coord.get_x() + 1));
+                if (coord.get_y() >= -1 && coord.get_y() < playfield.get_rows() - 1) {
+                    Cell& cell = playfield.get_cell(Coord(coord.get_y() + 1, coord.get_x()));
                     if (cell.get_filled())
                         return true;
                 }
@@ -226,13 +223,80 @@ class Tetromino {
             return false;
         }
 
-        void freeze() {
-            // "freezes" the tetromino to the playfield and deactivates it.
+        void freeze(Playfield& playfield) {
+            vector<Block> filled = get_filled_blocks();
+            for (Block block : filled) {
+                Cell& cell = playfield.get_cell(block.get_coord());
+                cell.set_filled(true);
+                cell.set_color(type);
+            }
+        }
+
+        void draw(Coord origin) {
+            attron(COLOR_PAIR(type));
+            vector<Block> blocks = get_filled_blocks();
+            for (Block block : blocks) {
+                Coord coord = block.get_coord();
+                if (coord.get_y() >= 0) {
+                    mvaddch(origin.get_y() + coord.get_y(), 
+                            origin.get_x() + coord.get_x(), '#');
+                }
+            }
+            attroff(COLOR_PAIR(type));
         }
 
     private:
         int type;
         int size;
         vector<vector<Block>> buffer;
+};
+
+class TetrominoGenerator {
+    public:
+        TetrominoGenerator() {
+            unsigned long int seed = system_clock::to_time_t(system_clock::now());
+            generator = linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647>(seed);
+            new_batch();
+        }
+
+        void new_batch() {
+            deque<int> new_permutations;
+            for (auto index = 1; index <= NUM_TETROMINOS; index++) {
+                new_permutations.push_back(index);
+            }
+            for (auto shuffle = 0; shuffle < GENERATOR_SHUFFLES; shuffle++) {
+                int i = generator() % NUM_TETROMINOS, j = generator() % NUM_TETROMINOS;
+                int temp = new_permutations[i];
+                new_permutations[i] = new_permutations[j];
+                new_permutations[j] = temp;
+            }
+            permutations = new_permutations;
+        }
+
+        int preview() {
+            return permutations.front();
+        }
+
+        Tetromino next() {
+            int row = START_ROW;
+            if (permutations.front() == TETROMINO_SQUARE) {
+                row += 2;
+            } else if (permutations.front() != TETROMINO_STRAIGHT) {
+                row ++;
+            }
+
+            Tetromino next = Tetromino(Coord(row, generator() % START_COL_LIMIT), 
+                                       permutations.front());
+
+            permutations.pop_front();
+            if (permutations.empty())
+                new_batch();
+
+            return next;
+        }
+
+    private:
+        linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647> generator;
+        deque<int> permutations;
 };
 
