@@ -35,7 +35,7 @@ void TetrominoGenerator::new_batch()
 
 Tetromino TetrominoGenerator::next(Playfield& playfield)
 {
-    Tetromino next = Tetromino(Coord(0, 0), permutations.front());
+    Tetromino next = Tetromino(Coord(-4, 0), permutations.front());
     int right = generator() % 10, left = generator() % 10, rotations = generator() % 10;
     for (auto moves = 0; moves < right; moves++)
         next.attempt_move(playfield, MOVE_RIGHT);

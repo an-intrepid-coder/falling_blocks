@@ -84,7 +84,7 @@ bool Tetromino::valid_placement(Playfield& playfield, Block& old_block, Coord& t
     if (old_block.get_filled() && !target.in_bounds(playfield.get_rows(), playfield.get_cols()))
         return false;
 
-    if (old_block.get_filled() && target.in_bounds(playfield.get_rows(), playfield.get_cols()))
+    if (old_block.get_filled() && target.in_bounds(playfield.get_rows(), playfield.get_cols()) && target.get_y() >= 0)
     {
         Cell& target_cell = playfield.get_cell(target);
         if (target_cell.get_filled())
@@ -106,7 +106,7 @@ bool Tetromino::resting(Playfield& playfield)
                 {
                     return true;
                 }
-                else if (playfield.get_cell(Coord(coord, Delta{1, 0})).get_filled())
+                else if (coord.get_y() >= -1 && playfield.get_cell(Coord(coord, Delta{1, 0})).get_filled())
                 {
                     return true;
                 }
@@ -122,7 +122,8 @@ void Tetromino::freeze(Playfield& playfield)
     {
         for (auto block : row)
         {
-            if (block.get_filled())
+            Coord coord = block.get_coord();
+            if (block.get_filled() && coord.in_bounds(playfield.get_rows(), playfield.get_cols()) && coord.get_y() >= 0)
             {
                 Cell &target = playfield.get_cell(block.get_coord());
                 target.set_filled(true);
@@ -255,7 +256,8 @@ void Tetromino::draw(Coord origin, Playfield& playfield)
     {
         for (auto block : row)
         {
-            if (block.get_filled() && block.get_coord().in_bounds(playfield.get_rows(), playfield.get_cols()))
+            Coord coord = block.get_coord();
+            if (block.get_filled() && coord.in_bounds(playfield.get_rows(), playfield.get_cols()) && coord.get_y() >= 0)
             {
                 if (has_colors())
                     attron(COLOR_PAIR(type));
