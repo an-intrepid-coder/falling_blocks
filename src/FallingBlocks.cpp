@@ -7,14 +7,13 @@ using std::chrono::milliseconds;
 
 using namespace std::chrono_literals;
 
-FallingBlocks::FallingBlocks() : level(1)
+FallingBlocks::FallingBlocks() : level(1), lines_cleared(0), score(0)
 {
     init_curses();
 }
 
 FallingBlocks::~FallingBlocks()
 {
-    endwin();
     uninit_curses();
 }
 
@@ -67,9 +66,9 @@ void FallingBlocks::init_curses()
     }
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    if (rows < 24 || cols < 10)  // Will need more when I re-implement the HUD
+    if (rows < GAME_HEIGHT || cols < GAME_WIDTH)  // Will need more when I re-implement the HUD
     {
-        printw("Please ensure your terminal window is 24 rows by 10 columns or greater and try again. Any key to exit.");
+        printw("Please ensure your terminal window is %d rows by %d columns or greater and try again. Any key to exit.", GAME_HEIGHT, GAME_WIDTH);
         nodelay(stdscr, false);
         getch();
         endwin();
@@ -96,8 +95,16 @@ void FallingBlocks::draw_game()
     Coord playfield_origin = Coord(max_height / 2 - playfield.get_rows() / 2, max_width / 2 - playfield.get_cols() / 2);
 
     playfield.draw(playfield_origin);
+    tetromino.draw(playfield_origin);
 
-    tetromino.draw(playfield_origin, playfield);
+    int hud_y = playfield_origin.get_y(), hud_x = playfield_origin.get_x() + PLAYFIELD_WIDTH + 1;
+    mvprintw(hud_y, hud_x, "Level: %d", level);
+    mvprintw(hud_y + 1, hud_x, "Lines: %d", lines_cleared);
+    mvprintw(hud_y + 2, hud_x, "Score: %d", score);
+    mvprintw(hud_y + 3, hud_x, "Next Up: ");
+
+    Tetromino next = Tetromino(Coord(4, PLAYFIELD_WIDTH + 1), generator.preview());
+    next.draw(playfield_origin);
 
     refresh();
 }
@@ -110,7 +117,9 @@ void FallingBlocks::game_loop()
         {
             tetromino.freeze(playfield);
             tetromino = generator.next(playfield);
-            playfield.clear_lines();
+            unsigned long int cleared = playfield.clear_lines();
+            lines_cleared += cleared;
+            score = cleared == 4 ? score + BONUS_SCORE : score + cleared * LINE_SCORE;
         }
 
         duration<double, std::milli> elapsed = high_resolution_clock::now() - gravity_clock;

@@ -250,14 +250,14 @@ void Tetromino::offset(int& dy, int& dx)
     }
 }
 
-void Tetromino::draw(Coord origin, Playfield& playfield)
+void Tetromino::draw(Coord origin)
 {
     for (auto row : blocks)
     {
         for (auto block : row)
         {
             Coord coord = block.get_coord();
-            if (block.get_filled() && coord.in_bounds(playfield.get_rows(), playfield.get_cols()) && coord.get_y() >= 0)
+            if (block.get_filled() && coord.get_y() >= 0)
             {
                 if (has_colors())
                     attron(COLOR_PAIR(type));

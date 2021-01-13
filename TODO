@@ -1,8 +1,3 @@
-> Ensure snake_case for variable names and member 
-  functions, and UpperCamelCase for class names,
-  enums, and structs.
-> Translate the *entire project* to C++
-> Improve the score system
 > Learn more about Makefiles
 > Add flashing animation on line-clear.
 > Add animated background.
@@ -11,6 +6,4 @@
 > Use 2 cells for each of the 4 blocks in every 
   tetromino, to reduce some of the awkwardness of
   rectangular character cells.
-> Completely re-do the tetrominos using memory
-  allocation and sane, re-usable functions.
 > A small debugging library

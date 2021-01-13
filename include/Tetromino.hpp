@@ -21,7 +21,7 @@ class Tetromino
         bool resting(Playfield& playfield);
         void freeze(Playfield& playfield);
         void clockwise_rotation(Playfield& playfield);
-        void draw(Coord origin, Playfield& playfield);
+        void draw(Coord origin);
 
     private:
         bool valid_placement(Playfield& playfield, Block& old_block, Coord& target);

@@ -49,8 +49,9 @@ void Playfield::drop_rows(int row)
     }
 }
 
-void Playfield::clear_lines()
+unsigned long int Playfield::clear_lines()
 {
+    unsigned long int cleared = 0;
     for (auto row = rows - 1; row >= 0; row--)
     {
         if (row_filled(row))
@@ -58,9 +59,10 @@ void Playfield::clear_lines()
             clear_row(row);
             drop_rows(row);
             row = rows - 1;
-            // score up to-do
+            cleared++;
         }
     }
+    return cleared;
 }
 
 bool Playfield::game_over()

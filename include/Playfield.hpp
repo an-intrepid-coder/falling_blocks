@@ -15,9 +15,9 @@ class Playfield
 
         int get_rows() { return rows; }
         int get_cols() { return cols; }
+        unsigned long int clear_lines();
         Cell& get_cell(Coord target) { return buffer[target.get_y()][target.get_x()]; }
         void draw(Coord origin);
-        void clear_lines();
         bool game_over();
 
     private:

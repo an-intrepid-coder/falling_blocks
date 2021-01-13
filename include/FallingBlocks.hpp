@@ -2,6 +2,10 @@
 #define FALLINGBLOCKS_HPP
 
 #define DEFAULT_GRAVITY 1000
+#define GAME_HEIGHT 24
+#define GAME_WIDTH 30
+#define LINE_SCORE 100
+#define BONUS_SCORE 1000
 
 #include <iostream>
 #include <chrono>
@@ -26,7 +30,8 @@ class FallingBlocks
         int convert_input(int input);
 
         int level;
-        Playfield playfield = Playfield(24, 10);
+        unsigned long int lines_cleared, score;
+        Playfield playfield = Playfield(PLAYFIELD_HEIGHT, PLAYFIELD_WIDTH);
         TetrominoGenerator generator = TetrominoGenerator();
         Tetromino tetromino = generator.next(playfield);
         std::chrono::milliseconds gravity_threshold{DEFAULT_GRAVITY};
