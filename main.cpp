@@ -5,7 +5,7 @@ using std::cout;
 using std::cin;
 using std::endl;
 
-int main()
+int main()  // CLI args coming up
 {
     const std::string version = "0.0.1";
 

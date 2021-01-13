@@ -12,11 +12,6 @@ TetrominoGenerator::TetrominoGenerator()
     new_batch();
 }
 
-int TetrominoGenerator::preview()
-{
-    return permutations.front();
-}
-
 void TetrominoGenerator::new_batch()
 {
     deque<int> new_permutations;

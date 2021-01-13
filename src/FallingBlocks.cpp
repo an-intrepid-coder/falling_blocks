@@ -7,7 +7,7 @@ using std::chrono::milliseconds;
 
 using namespace std::chrono_literals;
 
-FallingBlocks::FallingBlocks() : level(1), lines_cleared(0), score(0)
+FallingBlocks::FallingBlocks() : level(1), lines_cleared(0), score(0), lines_this_level(0)
 {
     init_curses();
 }
@@ -109,6 +109,16 @@ void FallingBlocks::draw_game()
     refresh();
 }
 
+void FallingBlocks::level_up()
+{
+    level++;
+
+    lines_this_level %= LINES_TO_LEVEL;
+
+    if (gravity_threshold.count() - MS_DECREMENT_NORMAL >= MS_FLOOR)
+        gravity_threshold -= milliseconds{MS_DECREMENT_NORMAL};
+}
+
 void FallingBlocks::game_loop()
 {
     while (!playfield.game_over())
@@ -119,7 +129,10 @@ void FallingBlocks::game_loop()
             tetromino = generator.next(playfield);
             unsigned long int cleared = playfield.clear_lines();
             lines_cleared += cleared;
+            lines_this_level += cleared;
             score = cleared == 4 ? score + BONUS_SCORE : score + cleared * LINE_SCORE;
+            if (lines_this_level >= LINES_TO_LEVEL)
+                level_up();
         }
 
         duration<double, std::milli> elapsed = high_resolution_clock::now() - gravity_clock;

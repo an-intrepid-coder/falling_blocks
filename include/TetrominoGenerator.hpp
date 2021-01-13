@@ -13,7 +13,7 @@ class TetrominoGenerator
     public:
         TetrominoGenerator();
 
-        int preview();
+        int preview() { return permutations.front(); }
         Tetromino next(Playfield& playfield);
 
     private:

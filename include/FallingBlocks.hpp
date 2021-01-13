@@ -6,6 +6,9 @@
 #define GAME_WIDTH 30
 #define LINE_SCORE 100
 #define BONUS_SCORE 1000
+#define LINES_TO_LEVEL 30
+#define MS_DECREMENT_NORMAL 75
+#define MS_FLOOR 90
 
 #include <iostream>
 #include <chrono>
@@ -27,10 +30,11 @@ class FallingBlocks
         void init_curses ();
         void uninit_curses ();
         void draw_game();
+        void level_up();
         int convert_input(int input);
 
         int level;
-        unsigned long int lines_cleared, score;
+        unsigned long int lines_cleared, score, lines_this_level;
         Playfield playfield = Playfield(PLAYFIELD_HEIGHT, PLAYFIELD_WIDTH);
         TetrominoGenerator generator = TetrominoGenerator();
         Tetromino tetromino = generator.next(playfield);

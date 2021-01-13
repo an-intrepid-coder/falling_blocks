@@ -58,7 +58,7 @@ unsigned long int Playfield::clear_lines()
         {
             clear_row(row);
             drop_rows(row);
-            row = rows - 1;
+            row = rows;
             cleared++;
         }
     }
