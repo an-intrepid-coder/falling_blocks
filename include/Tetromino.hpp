@@ -17,6 +17,7 @@ class Tetromino
     public:
         Tetromino(Coord origin, int type);
 
+        int get_type() { return type; }
         void attempt_move(Playfield& playfield, int move_type);
         bool resting(Playfield& playfield);
         void freeze(Playfield& playfield);

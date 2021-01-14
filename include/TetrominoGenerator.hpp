@@ -2,6 +2,9 @@
 #define TETROMINOGENERATOR_HPP
 
 #define GENERATOR_SHUFFLES 100
+#define NEW_ROTATIONS_LIMIT 10
+#define NEW_SHIFTS_LIMIT 8
+#define STARTING_ROW -4
 
 #include <deque>
 #include <random>

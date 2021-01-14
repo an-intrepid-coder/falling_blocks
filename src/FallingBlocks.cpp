@@ -7,9 +7,15 @@ using std::chrono::milliseconds;
 
 using namespace std::chrono_literals;
 
-FallingBlocks::FallingBlocks() : level(1), lines_cleared(0), score(0), lines_this_level(0)
+FallingBlocks::FallingBlocks(int starting_level) : level(1), lines_cleared(0), score(0), lines_this_level(0)
 {
     init_curses();
+
+    if (starting_level > 1)
+    {
+        for (auto levels = starting_level - 1; levels > 0; levels--)
+            level_up();
+    }
 }
 
 FallingBlocks::~FallingBlocks()
@@ -66,7 +72,7 @@ void FallingBlocks::init_curses()
     }
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    if (rows < GAME_HEIGHT || cols < GAME_WIDTH)  // Will need more when I re-implement the HUD
+    if (rows < GAME_HEIGHT || cols < GAME_WIDTH)
     {
         printw("Please ensure your terminal window is %d rows by %d columns or greater and try again. Any key to exit.", GAME_HEIGHT, GAME_WIDTH);
         nodelay(stdscr, false);
@@ -115,11 +121,22 @@ void FallingBlocks::level_up()
 
     lines_this_level %= LINES_TO_LEVEL;
 
-    if (gravity_threshold.count() - MS_DECREMENT_NORMAL >= MS_FLOOR)
-        gravity_threshold -= milliseconds{MS_DECREMENT_NORMAL};
+    if (gravity_threshold.count() - MS_DECREMENT >= MS_FLOOR)
+        gravity_threshold -= milliseconds{MS_DECREMENT};
 }
 
-void FallingBlocks::game_loop()
+void FallingBlocks::pause()
+{
+    nodelay(stdscr, false);
+    draw_game();
+    mvprintw(0, 0, "GAME PAUSED -- PRESS 'P' AGAIN TO CONTINUE");
+    int input = convert_input(getch());
+    while (input != MOVE_PAUSE) {}
+    nodelay(stdscr, true);
+    draw_game();
+}
+
+unsigned long int FallingBlocks::game_loop()
 {
     while (!playfield.game_over())
     {
@@ -153,9 +170,13 @@ void FallingBlocks::game_loop()
             case MOVE_DOWN:
                 tetromino.attempt_move(playfield, input);
             break;
+            case MOVE_PAUSE:
+                pause();
+            break;
         }
         draw_game();
 
-        sleep_for(33ms);
+        sleep_for(FRAME_WAIT);
     }
+    return score;
 }

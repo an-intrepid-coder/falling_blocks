@@ -21,23 +21,27 @@ void TetrominoGenerator::new_batch()
     for (auto shuffle = 0; shuffle < GENERATOR_SHUFFLES; shuffle++)
     {
         int i = generator() % NUM_TETROMINOS, j = generator() % NUM_TETROMINOS;
-        int temp = new_permutations[i];
-        new_permutations[i] = new_permutations[j];
-        new_permutations[j] = temp;
+        if (i != j)
+        {
+            int temp = new_permutations[i];
+            new_permutations[i] = new_permutations[j];
+            new_permutations[j] = temp;
+        }
     }
     permutations = new_permutations;
 }
 
 Tetromino TetrominoGenerator::next(Playfield& playfield)
 {
-    Tetromino next = Tetromino(Coord(-4, 0), permutations.front());
-    int right = generator() % 10, left = generator() % 10, rotations = generator() % 10;
-    for (auto moves = 0; moves < right; moves++)
-        next.attempt_move(playfield, MOVE_RIGHT);
-    for (auto moves = 0; moves < left; moves++)
-        next.attempt_move(playfield, MOVE_LEFT);
-    for (auto moves = 0; moves < rotations; moves++)
-        next.clockwise_rotation(playfield);
+    Tetromino next = Tetromino(Coord(STARTING_ROW, 0), permutations.front());
+    int rotations = generator() % NEW_ROTATIONS_LIMIT, shifts = generator() % NEW_SHIFTS_LIMIT;
+    for (auto moves = 0; moves < shifts; moves++)
+            next.attempt_move(playfield, MOVE_RIGHT);
+    if (next.get_type() != TETROMINO_SQUARE)
+    {
+        for (auto moves = 0; moves < rotations; moves++)
+            next.clockwise_rotation(playfield);
+    }
 
     permutations.pop_front();
     if (permutations.empty())

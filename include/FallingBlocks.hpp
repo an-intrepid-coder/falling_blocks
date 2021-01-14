@@ -1,14 +1,15 @@
 #ifndef FALLINGBLOCKS_HPP
 #define FALLINGBLOCKS_HPP
 
+#define FRAME_WAIT 33ms
 #define DEFAULT_GRAVITY 1000
 #define GAME_HEIGHT 24
 #define GAME_WIDTH 30
 #define LINE_SCORE 100
 #define BONUS_SCORE 1000
-#define LINES_TO_LEVEL 30
-#define MS_DECREMENT_NORMAL 75
-#define MS_FLOOR 90
+#define LINES_TO_LEVEL 20
+#define MS_DECREMENT 75
+#define MS_FLOOR 45
 
 #include <iostream>
 #include <chrono>
@@ -21,16 +22,17 @@
 class FallingBlocks
 {
     public:
-        FallingBlocks();
+        FallingBlocks(int starting_level);
         ~FallingBlocks();
 
-        void game_loop(); // can eventually return a score or something
+        unsigned long int game_loop();
 
     private:
-        void init_curses ();
-        void uninit_curses ();
+        void init_curses();
+        void uninit_curses();
         void draw_game();
         void level_up();
+        void pause();
         int convert_input(int input);
 
         int level;
