@@ -7,9 +7,9 @@ using std::chrono::milliseconds;
 
 using namespace std::chrono_literals;
 
-FallingBlocks::FallingBlocks(int starting_level) : level(1), lines_cleared(0), score(0), lines_this_level(0)
+FallingBlocks::FallingBlocks(int starting_level, bool solid_color) : level(1), lines_cleared(0), score(0), lines_this_level(0)
 {
-    init_curses();
+    init_curses(solid_color);
 
     if (starting_level > 1)
     {
@@ -47,11 +47,14 @@ int FallingBlocks::convert_input(int input)
         case 112:
             return_value = MOVE_PAUSE;
         break;
+        case 81:
+            return_value = MOVE_QUIT;
+        break;
     }
     return return_value;
 }
 
-void FallingBlocks::init_curses()
+void FallingBlocks::init_curses(bool solid_color)
 {
     initscr();
     noecho();
@@ -60,14 +63,29 @@ void FallingBlocks::init_curses()
     nodelay(stdscr, true);
     if (has_colors())
     {
-        start_color(); // To-Do: Re-implement multiple color options
+        start_color();
         init_pair(BLACK_BG_WHITE_FG, COLOR_WHITE, COLOR_BLACK);
-        init_pair(BLACK_BG_RED_FG, COLOR_RED, COLOR_BLACK);
-        init_pair(BLACK_BG_YELLOW_FG, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(BLACK_BG_GREEN_FG, COLOR_GREEN, COLOR_BLACK);
-        init_pair(BLACK_BG_BLUE_FG, COLOR_BLUE, COLOR_BLACK);
-        init_pair(BLACK_BG_CYAN_FG, COLOR_CYAN, COLOR_BLACK);
-        init_pair(BLACK_BG_MAGENTA_FG, COLOR_MAGENTA, COLOR_BLACK);
+        if (solid_color)
+        {
+            init_pair(SOLID_WHITE, COLOR_WHITE, COLOR_WHITE);
+            init_pair(SOLID_RED, COLOR_RED, COLOR_RED);
+            init_pair(SOLID_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
+            init_pair(SOLID_GREEN, COLOR_GREEN, COLOR_GREEN);
+            init_pair(SOLID_BLUE, COLOR_BLUE, COLOR_BLUE);
+            init_pair(SOLID_CYAN, COLOR_CYAN, COLOR_CYAN);
+            init_pair(SOLID_MAGENTA, COLOR_MAGENTA, COLOR_MAGENTA);
+
+        }
+        else
+        {
+            init_pair(WHITE_ASCII, COLOR_WHITE, COLOR_BLACK);
+            init_pair(RED_ASCII, COLOR_RED, COLOR_BLACK);
+            init_pair(YELLOW_ASCII, COLOR_YELLOW, COLOR_BLACK);
+            init_pair(GREEN_ASCII, COLOR_GREEN, COLOR_BLACK);
+            init_pair(BLUE_ASCII, COLOR_BLUE, COLOR_BLACK);
+            init_pair(CYAN_ASCII, COLOR_CYAN, COLOR_BLACK);
+            init_pair(MAGENTA_ASCII, COLOR_MAGENTA, COLOR_BLACK);
+        }
 
     }
     int rows, cols;
@@ -172,6 +190,9 @@ unsigned long int FallingBlocks::game_loop()
             break;
             case MOVE_PAUSE:
                 pause();
+            break;
+            case MOVE_QUIT:
+                return score;
             break;
         }
         draw_game();

@@ -22,13 +22,13 @@
 class FallingBlocks
 {
     public:
-        FallingBlocks(int starting_level);
+        FallingBlocks(int starting_level, bool solid_color);
         ~FallingBlocks();
 
         unsigned long int game_loop();
 
     private:
-        void init_curses();
+        void init_curses(bool solid_color);
         void uninit_curses();
         void draw_game();
         void level_up();
