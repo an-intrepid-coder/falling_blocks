@@ -1,27 +1,34 @@
-# FALLING BLOCKS
-
-#### w/ `--solid` color mode:
-![Gameplay Image](images/solid.png)
+# FALLING BLOCKS 
+##### by sgibber2018
 
 #### w/ `--ascii` color mode:
 ![Gameplay Image](images/ascii.png)
 
-**Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. **'a', 's', 'd'** keys to move left, down, and right. **'f'** key to rotate the tetromino. **'p'** to pause the game. Press **'CTRL+C'** to exit, except during the game over screen when you'll be prompted to quit with **'q'**. 
+#### w/ `--solid` color mode:
+![Gameplay Image](images/solid.png)
 
-**Options:** `--easy`, `--medium`, and `--hard` set the size of the speed decrements for each new level (so harder means the blocks fall faster sooner). `--ascii` and `--solid` set the symbols used for the tetromino blocks (solid gives a more arcade-like appearance). By default no color is used. An example might be `./blocks --easy --ascii` or `./blocks --solid --hard`. Some players might find it easier to "line up" the tiles using the `--ascii` setting instead of the `--solid` setting. To get a wealth of debugging information, include the `--debug` option.
+**Version:** 0.0.1
 
-**State of the Project:** pre-0.0.1. Like a car with just an engine, wheels, loud muffler, one headlight, and a frame. It can be played from start to finish for as long as you like. It can take awhile to ramp up to high difficulty, and the nature of the input system makes it very difficult once it gets there, but it's totally good for an hour or two of fun. I was going to re-make this in Rust rather than continue working on it in C, but while writing recent updates I was reminded how much I like C. Eventually I'll re-write it in Rust, but for the foreseeable future I'll continue using C. I have included my TODO list in the repo (which I had previously just kept local) so anyone interested can see what I plan on implementing, in no particular order. 
+**Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C++ and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. **'a', 's', 'd'** keys to move left, down, and right. **'f'** key to rotate the tetromino. **'p'** to pause the game, and **'Q'** to quit.  
 
-**Installation/Dependencies:** If you want to use this you'll need to build it yourself by following these steps:
-1. Make sure you have `gcc` installed, along with basic build tools. On Debian-based systems like Ubuntu this is all usually in a package called `build-essential`. You'll also need `libncurses5-dev` (the version I had when writing it) or later, which you can also find in your distribution repositories. On Arch all you should need is `base-devel`. Consult your distribution's repositories for more information if you're on another distro.
-2. If you have `make` (which is typically included in `build-essential`, `base-devel`, and similar packages) then simply type `make` while in the project directory. If you want to hack on the game yourself then build with `make debug` to get warnings and debugging symbols.
-3. You should now have an executable file named `blocks` and you can run the game with: `./blocks [OPTIONS]`
+**Options:** By default the game uses the "ASCII" look for displaying the tetrominos, which fits the terminal aesthetic. If you prefer a more arcade-style look then using the `--solid` option will toggle it. The default game mode starts at level 1 with a slow drop-rate, but players who want a challenge can use the `--level <number>` option to start at a higher level with a faster drop-rate. The drop-rate maxes out around level 13 (for now), so entering numbers higher than that serves no real purpose. Your score starts at 0 regardless, but I may add a multiplier based on starting level so that getting a high score starting with a faster drop rate is more meaningful. To suppress the intro blurb, use the `--quiet` option. To view the help/about info, use the `--help` option. If your system does not allow for color display in the terminal then it will not use color.
 
-**Disclaimer:** I am not a professional programmer, although I did enjoy making this a lot. Compile and run at your own risk. Almost everything happens "in-place" and it has a very small memory footprint. Note that it is normal for ncurses to show some memory still in use after the program ends, if you test with valgrind, unless you go out of your way to disable this (because of the memory responsible for the terminal itself). All allocations made by the program are freed, however (and are currently very minimal anyway). The functions which govern the rotation of tetrominos and actual display logic are *extremely naive*. Anyone who wants to mess with it is 100% welcome to do so; I have left comments in some of the most pertinent parts of the code where performance or style is a real issue. I had a lot of fun writing this and sharing is caring, so have at it. 
+**State of the Project:** I am comfortable calling this **version 0.0.1**. It is stable, playable from start to finish, includes various options, and has a lot of room for improvement. After writing the C version I was unsure if I wanted to use Rust or C++ going forward. I decided on C++ because it is both more familiar to me and allows me to practice for some more ambitious projects that I have planned in the near future, for which I will be using C++. I may implement a Rust version alongside this one in the future. I made many improvements to my original C version while converting it to C++: I adopted an object-oriented style, I reduced hard-coding wherever possible, and I have tried to make something here which can potentially be used for other games that have similar requirements. As always, anyone who wishes to contribute or use my code for their own purposes is more than welcome to do so.
 
-**References:** Some resources were helpful while making this program so far:
-- *C Programming, a Modern Approach (2nd Edition)* by K.N. King. I surely am not doing this fine book justice by mentioning it in the same breath as my naive and unoptimized prototype, but it really is a wonderful book and was extremely helpful.
+**Installation/Dependencies:** (Linux only for now, although I suppose it would work on a BSD-system similarly).
+1. Make sure you have basic build tools installed. This varies from distribution to distribution but you will want `gcc`, `make`, and `libncurses-dev`. `gcc` and `make` tend to come packaged together, and sometimes `ncurses` development libraries come with them. For example, on Debian-based systems you will want `build-essential` and `libncurses-dev`. On Arch you will want `base-devel`. Each major Linux distribution should have packages with these dependencies available.
+2. Download or clone this repository. 
+3. While in the directory of the downloaded or cloned repository, open the terminal and type `make`. 
+4. You should now have an executable file named `blocks` which can be run with the command: `./blocks [OPTIONS]`.
+- Down the road I may consider offering pre-built binaries, but for now there's some DIY required. If you've never done this sort of thing before then I encourage you to try. If you have any questions then feel free to send me an email using my contact information or look me up on IRC (where I am often present). 
+
+**Disclaimer:** I am not a professional programmer; I am an enthusiastic amateur with a lot to learn. Compile and run at your own risk. 
+
+**Resources:** Some resources were helpful while making this program so far:
+- *C Programming, a Modern Approach (2nd Edition)* by K.N. King. I surely am not doing this fine book justice by mentioning it in the same breath as my naive and unoptimized C prototype, but it is a wonderful book and was extremely helpful.
 - Wikipedia has a good page on tetrominos.
 - The ncurses documentation
-- I got some great advice from the friendly people at Freenode IRC's ##programming channel and ##c channel.
+- I got some great advice from the friendly people at Freenode IRC's ##programming, ##c, and ##c++ channels.
+- cppreference.com was invaluable while making the C++ version.
+- *C++ Fundamentals* by Antonio Mallia and Francesco Zoffoli was a helpful refresher for some parts.
 

@@ -1,9 +1,5 @@
-> Learn more about Makefiles
 > Add flashing animation on line-clear.
 > Add animated background.
-> Add title screen
-> Wrap the arguments-checker in a function
 > Use 2 cells for each of the 4 blocks in every 
   tetromino, to reduce some of the awkwardness of
   rectangular character cells.
-> A small debugging library
