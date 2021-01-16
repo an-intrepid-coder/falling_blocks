@@ -1,13 +1,13 @@
 # FALLING BLOCKS 
 ##### by sgibber2018
 
-#### w/ `default color mode:
+#### w/ default color mode:
 ![Gameplay Image](images/ascii.png)
 
 #### w/ `--solid` color mode:
 ![Gameplay Image](images/solid.png)
 
-**Version:** 0.0.2
+**Version:** 0.0.3
 
 **Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C++ and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. **'a', 's', 'd'** keys to move left, down, and right. **'f'** key to rotate the tetromino. **'p'** to pause the game, and **'Q'** to quit.  
 
@@ -24,7 +24,7 @@
 
 **Disclaimer:** I am not a professional programmer; I am an enthusiastic amateur with a lot to learn. Compile and run at your own risk. 
 
-**Valgrind:** Note that it is normal for a program using `ncurses` to still show some memory in use after exit, if checked with valgrind. This is because of the terminal itself and the way that it is handled. No manual memory allocation is actually done in this program, currently, although that may change in the future with the addition of new game modes or increase the scale of the game.
+**Valgrind:** Note that it is normal for a program using `ncurses` to still show some memory in use after exit, if checked with valgrind. This is because of the terminal itself and the way that it is handled. No manual memory allocation is actually done in this program, currently, although that may change in the future with the addition of new game modes or if I increase the scale of the game.
 
 **Resources:** Some resources were helpful while making this program so far:
 - *C Programming, a Modern Approach (2nd Edition)* by K.N. King. I surely am not doing this fine book justice by mentioning it in the same breath as my naive and unoptimized C prototype, but it is a wonderful book and was extremely helpful.

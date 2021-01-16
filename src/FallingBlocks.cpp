@@ -115,7 +115,7 @@ void FallingBlocks::generate_background()
 {
     background = Playfield(term_height, term_width);
 
-    for (auto tetrominos = 0; tetrominos < term_height * BACKGROUND_TETROMINOS_MULT; tetrominos++)
+    for (auto tetrominos = 0; tetrominos < BACKGROUND_TETROMINOS; tetrominos++)
     {
         Tetromino bg_tetromino = generator.next(background);
 
@@ -208,7 +208,10 @@ void FallingBlocks::pause()
     draw_game();
     mvprintw(0, 0, "GAME PAUSED -- PRESS 'P' AGAIN TO CONTINUE");
     int input = convert_input(getch());
-    while (input != MOVE_PAUSE) {}
+    while (input != MOVE_PAUSE)
+    {
+        input = convert_input(getch());
+    }
     nodelay(stdscr, true);
     draw_game();
 }

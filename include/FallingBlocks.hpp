@@ -10,7 +10,7 @@
 #define LINES_TO_LEVEL 20
 #define MS_DECREMENT 75
 #define MS_FLOOR 45
-#define BACKGROUND_TETROMINOS_MULT 12
+#define BACKGROUND_TETROMINOS (((term_height * term_width) / 100) * level) % (((term_height * term_width) / 10) + 1)
 #define BORDER_WIDTH 10
 #define HUD_LINES 3
 
