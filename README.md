@@ -2,10 +2,10 @@
 ##### by sgibber2018
 
 #### w/ `default color mode:
-![Gameplay Image](images/ascii2.png)
+![Gameplay Image](images/ascii.png)
 
 #### w/ `--solid` color mode:
-![Gameplay Image](images/solid2.png)
+![Gameplay Image](images/solid.png)
 
 **Version:** 0.0.2
 
