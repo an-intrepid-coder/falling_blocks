@@ -14,10 +14,12 @@ class Playfield
         Playfield(int rows, int cols);
 
         int get_rows() { return rows; }
+        void set_rows(int val) { rows = val; }
         int get_cols() { return cols; }
+        void set_cols(int val) { cols = val; }
         unsigned long int clear_lines();
         Cell& get_cell(Coord target) { return buffer[target.get_y()][target.get_x()]; }
-        void draw(Coord origin);
+        void draw(Coord origin, bool grid);
         bool game_over();
 
     private:

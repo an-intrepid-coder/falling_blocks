@@ -18,6 +18,7 @@ class Tetromino
         Tetromino(Coord origin, int type);
 
         int get_type() { return type; }
+        int get_field_size() { return field_size; }
         void attempt_move(Playfield& playfield, int move_type);
         bool resting(Playfield& playfield);
         void freeze(Playfield& playfield);

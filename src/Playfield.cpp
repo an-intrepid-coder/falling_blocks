@@ -75,7 +75,7 @@ bool Playfield::game_over()
     return false;
 }
 
-void Playfield::draw(Coord origin)
+void Playfield::draw(Coord origin, bool grid)
 {
     for (auto row = 0; row < rows; row++)
     {
@@ -85,7 +85,7 @@ void Playfield::draw(Coord origin)
             if (has_colors())
                 attron(COLOR_PAIR(cell.get_color()));
 
-            char symbol = cell.get_filled() ? '#' : '.';
+            char symbol = cell.get_filled() ? '#' : grid ? '.' : ' ';
             Coord target = Coord(origin, Delta{ row, col });
 
             mvaddch(target.get_y(), target.get_x(), symbol);
