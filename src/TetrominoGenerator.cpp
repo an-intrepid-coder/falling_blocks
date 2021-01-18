@@ -1,4 +1,3 @@
-#include <chrono>
 #include "TetrominoGenerator.hpp"
 
 using std::deque;

@@ -1,3 +1,3 @@
 #include "Cell.hpp"
 
-Cell::Cell(Coord coord) : color(BLACK_BG_WHITE_FG), filled(false), coord(coord) {}
+Cell::Cell(Coord coord) : color(0), filled(false), coord(coord) {}

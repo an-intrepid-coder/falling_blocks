@@ -250,7 +250,7 @@ void Tetromino::offset(int& dy, int& dx)
     }
 }
 
-void Tetromino::draw(Coord origin)
+void Tetromino::draw(Coord origin, int shift)
 {
     for (auto row : blocks)
     {
@@ -260,14 +260,14 @@ void Tetromino::draw(Coord origin)
             if (block.get_filled() && coord.get_y() >= 0)
             {
                 if (has_colors())
-                    attron(COLOR_PAIR(type));
+                    attron(COLOR_PAIR((type + shift) % NUM_TETROMINOS + 1));
 
                 Coord coord = block.get_coord();
                 Coord target = Coord(origin, Delta{coord.get_y(), coord.get_x()});
                 mvaddch(target.get_y(), target.get_x(), '#');
 
                 if (has_colors())
-                    attroff(COLOR_PAIR(type));
+                    attroff(COLOR_PAIR((type + shift) % NUM_TETROMINOS + 1));
             }
         }
     }

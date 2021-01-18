@@ -2,7 +2,7 @@
 #define FALLINGBLOCKS_HPP
 
 #define FRAME_WAIT 33ms
-#define CLEAR_WAIT 12ms
+#define CLEAR_WAIT 50ms
 #define DEFAULT_GRAVITY 1000
 #define GAME_HEIGHT 24
 #define GAME_WIDTH 80

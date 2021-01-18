@@ -68,29 +68,19 @@ void FallingBlocks::init_curses(bool solid_color)
     if (has_colors())
     {
         start_color();
-        init_pair(BLACK_BG_WHITE_FG, COLOR_WHITE, COLOR_BLACK);
-        if (solid_color)
+        for (auto color = 1; color <= 7; color++)
         {
-            init_pair(SOLID_WHITE, COLOR_WHITE, COLOR_WHITE);
-            init_pair(SOLID_RED, COLOR_RED, COLOR_RED);
-            init_pair(SOLID_YELLOW, COLOR_YELLOW, COLOR_YELLOW);
-            init_pair(SOLID_GREEN, COLOR_GREEN, COLOR_GREEN);
-            init_pair(SOLID_BLUE, COLOR_BLUE, COLOR_BLUE);
-            init_pair(SOLID_CYAN, COLOR_CYAN, COLOR_CYAN);
-            init_pair(SOLID_MAGENTA, COLOR_MAGENTA, COLOR_MAGENTA);
-
-        }
-        else
-        {
-            init_pair(WHITE_ASCII, COLOR_WHITE, COLOR_BLACK);
-            init_pair(RED_ASCII, COLOR_RED, COLOR_BLACK);
-            init_pair(YELLOW_ASCII, COLOR_YELLOW, COLOR_BLACK);
-            init_pair(GREEN_ASCII, COLOR_GREEN, COLOR_BLACK);
-            init_pair(BLUE_ASCII, COLOR_BLUE, COLOR_BLACK);
-            init_pair(CYAN_ASCII, COLOR_CYAN, COLOR_BLACK);
-            init_pair(MAGENTA_ASCII, COLOR_MAGENTA, COLOR_BLACK);
+            if (solid_color)
+            {
+                init_pair(color, color, color);
+            }
+            else
+            {
+                init_pair(color, color, 0);
+            }
         }
     }
+
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
     if (rows < GAME_HEIGHT || cols < GAME_WIDTH)
@@ -170,15 +160,15 @@ void FallingBlocks::draw_game()
         generate_background();
     }
 
-    background.draw(Coord(0, 0), false);
+    background.draw(Coord(0, 0), false, level);
 
     Coord playfield_origin = Coord(max_height / 2 - playfield.get_rows() / 2, max_width / 2 - playfield.get_cols() / 2);
     playfield.set_origin(playfield_origin);
 
     draw_playfield_border(playfield_origin);
 
-    playfield.draw(playfield_origin, true);
-    tetromino.draw(playfield_origin);
+    playfield.draw(playfield_origin, true, level);
+    tetromino.draw(playfield_origin, level);
 
     int hud_y = playfield_origin.get_y(), hud_x = playfield_origin.get_x() + PLAYFIELD_WIDTH;
     mvprintw(hud_y, hud_x, "Level: %d", level);
@@ -187,7 +177,7 @@ void FallingBlocks::draw_game()
     mvprintw(hud_y + 3, hud_x, "Next Up: ");
 
     Tetromino next = Tetromino(Coord(4, PLAYFIELD_WIDTH + 1), generator.preview());
-    next.draw(playfield_origin);
+    next.draw(playfield_origin, level);
 
     refresh();
 }
@@ -195,15 +185,26 @@ void FallingBlocks::draw_game()
 void FallingBlocks::line_clear_animation(vector<int> cleared)
 {
     Coord origin = playfield.get_origin();
-    attron(COLOR_PAIR(1));
+
+
     for (auto row : cleared)
     {
         for (auto col = 0; col < playfield.get_cols(); col++)
         {
+            if (has_colors())
+            {
+                attron(COLOR_PAIR(col % 7 + 1));
+            }
+
             mvaddch(origin.get_y() + row, origin.get_x() + col, '#');
+
+            if (has_colors())
+            {
+                attroff(COLOR_PAIR(col % 7 + 1));
+
+            }
         }
     }
-    attroff(COLOR_PAIR(1));
     refresh();
     sleep_for(CLEAR_WAIT);
 }

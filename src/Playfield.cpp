@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include "Playfield.hpp"
+#include "Tetromino.hpp"
 
 using std::vector;
 
@@ -29,7 +30,7 @@ void Playfield::clear_row(int row)
 {
     for (auto cell : buffer[row])
     {
-        cell.set_color(BLACK_BG_WHITE_FG);
+        cell.set_color(0);
         cell.set_filled(false);
     }
 }
@@ -44,7 +45,7 @@ void Playfield::drop_rows(int row)
             target.set_filled(cell.get_filled());
             target.set_color(cell.get_color());
             cell.set_filled(false);
-            cell.set_color(BLACK_BG_WHITE_FG);
+            cell.set_color(0);
         }
     }
 }
@@ -83,23 +84,24 @@ bool Playfield::game_over()
     return false;
 }
 
-void Playfield::draw(Coord origin, bool grid)
+void Playfield::draw(Coord origin, bool grid, int shift)
 {
     for (auto row = 0; row < rows; row++)
     {
         for (auto col = 0; col < cols; col++)
         {
             Cell& cell = buffer[row][col];
-            if (has_colors())
-                attron(COLOR_PAIR(cell.get_color()));
+            bool filled = cell.get_filled();
+            if (has_colors() && filled)
+                attron(COLOR_PAIR((cell.get_color() + shift) % NUM_TETROMINOS + 1));
 
             char symbol = cell.get_filled() ? '#' : grid ? '.' : ' ';
             Coord target = Coord(origin, Delta{ row, col });
 
             mvaddch(target.get_y(), target.get_x(), symbol);
 
-            if (has_colors())
-                attroff(COLOR_PAIR(cell.get_color()));
+            if (has_colors() && filled)
+                attroff(COLOR_PAIR((cell.get_color() + shift) % NUM_TETROMINOS + 1));
         }
     }
 }

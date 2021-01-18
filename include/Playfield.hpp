@@ -19,7 +19,7 @@ class Playfield
         void set_cols(int val) { cols = val; }
         std::vector<int> clear_lines();
         Cell& get_cell(Coord target) { return buffer[target.get_y()][target.get_x()]; }
-        void draw(Coord origin, bool grid);
+        void draw(Coord origin, bool grid, int shift);
         bool game_over();
         Coord get_origin() { return origin; }
         void set_origin(Coord val) { origin = val; }
