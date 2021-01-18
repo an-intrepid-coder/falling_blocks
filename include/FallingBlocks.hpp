@@ -34,13 +34,16 @@ class FallingBlocks
     private:
         void init_curses(bool solid_color);
         void uninit_curses();
+        void draw_hud(Coord origin);
         void draw_game();
         void draw_playfield_border(Coord origin);
         void line_clear_animation(std::vector<int> cleared);
         void level_up();
         void pause();
         void generate_background();
+        void termsize_check();
         int convert_input(int input);
+        bool is_resized();
 
         int level, term_height, term_width;
         unsigned long int lines_cleared, score, lines_this_level;

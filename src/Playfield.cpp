@@ -92,8 +92,9 @@ void Playfield::draw(Coord origin, bool grid, int shift)
         {
             Cell& cell = buffer[row][col];
             bool filled = cell.get_filled();
+            int color_pair = (cell.get_color() + shift) % NUM_TETROMINOS + 1;
             if (has_colors() && filled)
-                attron(COLOR_PAIR((cell.get_color() + shift) % NUM_TETROMINOS + 1));
+                attron(COLOR_PAIR((color_pair)));
 
             char symbol = cell.get_filled() ? '#' : grid ? '.' : ' ';
             Coord target = Coord(origin, Delta{ row, col });
@@ -101,7 +102,7 @@ void Playfield::draw(Coord origin, bool grid, int shift)
             mvaddch(target.get_y(), target.get_x(), symbol);
 
             if (has_colors() && filled)
-                attroff(COLOR_PAIR((cell.get_color() + shift) % NUM_TETROMINOS + 1));
+                attroff(COLOR_PAIR((color_pair)));
         }
     }
 }

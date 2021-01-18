@@ -68,7 +68,7 @@ void FallingBlocks::init_curses(bool solid_color)
     if (has_colors())
     {
         start_color();
-        for (auto color = 1; color <= 7; color++)
+        for (auto color = 1; color <= NUM_TETROMINOS; color++)
         {
             if (solid_color)
             {
@@ -81,6 +81,11 @@ void FallingBlocks::init_curses(bool solid_color)
         }
     }
 
+    termsize_check();
+}
+
+void FallingBlocks::termsize_check()
+{
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
     if (rows < GAME_HEIGHT || cols < GAME_WIDTH)
@@ -146,10 +151,8 @@ void FallingBlocks::draw_playfield_border(Coord origin)
     }
 }
 
-void FallingBlocks::draw_game()
+bool FallingBlocks::is_resized()
 {
-    erase();
-
     int max_height, max_width;
     getmaxyx(stdscr, max_height, max_width);
 
@@ -157,12 +160,21 @@ void FallingBlocks::draw_game()
     {
         term_height = max_height;
         term_width = max_width;
-        generate_background();
+        return true;
     }
+    return false;
+}
+
+void FallingBlocks::draw_game()
+{
+    erase();
+
+    if (is_resized())
+        generate_background();
 
     background.draw(Coord(0, 0), false, level);
 
-    Coord playfield_origin = Coord(max_height / 2 - playfield.get_rows() / 2, max_width / 2 - playfield.get_cols() / 2);
+    Coord playfield_origin = Coord(term_height / 2 - playfield.get_rows() / 2, term_width / 2 - playfield.get_cols() / 2);
     playfield.set_origin(playfield_origin);
 
     draw_playfield_border(playfield_origin);
@@ -170,16 +182,21 @@ void FallingBlocks::draw_game()
     playfield.draw(playfield_origin, true, level);
     tetromino.draw(playfield_origin, level);
 
-    int hud_y = playfield_origin.get_y(), hud_x = playfield_origin.get_x() + PLAYFIELD_WIDTH;
-    mvprintw(hud_y, hud_x, "Level: %d", level);
-    mvprintw(hud_y + 1, hud_x, "Lines: %d", lines_cleared);
-    mvprintw(hud_y + 2, hud_x, "Score: %d", score);
-    mvprintw(hud_y + 3, hud_x, "Next Up: ");
+    draw_hud(playfield_origin);
 
     Tetromino next = Tetromino(Coord(4, PLAYFIELD_WIDTH + 1), generator.preview());
     next.draw(playfield_origin, level);
 
     refresh();
+}
+
+void FallingBlocks::draw_hud(Coord origin)
+{
+    int hud_y = origin.get_y(), hud_x = origin.get_x() + PLAYFIELD_WIDTH;
+    mvprintw(hud_y, hud_x, "Level: %d", level);
+    mvprintw(hud_y + 1, hud_x, "Lines: %d", lines_cleared);
+    mvprintw(hud_y + 2, hud_x, "Score: %d", score);
+    mvprintw(hud_y + 3, hud_x, "Next Up: ");
 }
 
 void FallingBlocks::line_clear_animation(vector<int> cleared)

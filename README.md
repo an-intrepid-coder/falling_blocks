@@ -7,7 +7,7 @@
 #### w/ `--solid` color mode:
 ![Gameplay Image](images/solid.png)
 
-**Version:** 0.0.3
+**Version:** 0.0.4
 
 **Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C++ and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. **'a', 's', 'd'** keys to move left, down, and right. **'f'** key to rotate the tetromino. **'p'** to pause the game, and **'Q'** to quit.  
 
