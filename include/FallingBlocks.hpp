@@ -2,6 +2,7 @@
 #define FALLINGBLOCKS_HPP
 
 #define FRAME_WAIT 33ms
+#define CLEAR_WAIT 12ms
 #define DEFAULT_GRAVITY 1000
 #define GAME_HEIGHT 24
 #define GAME_WIDTH 80
@@ -35,6 +36,7 @@ class FallingBlocks
         void uninit_curses();
         void draw_game();
         void draw_playfield_border(Coord origin);
+        void line_clear_animation(std::vector<int> cleared);
         void level_up();
         void pause();
         void generate_background();

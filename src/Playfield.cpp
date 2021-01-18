@@ -49,17 +49,25 @@ void Playfield::drop_rows(int row)
     }
 }
 
-unsigned long int Playfield::clear_lines()
+vector<int> Playfield::clear_lines()
 {
-    unsigned long int cleared = 0;
-    for (auto row = rows - 1; row >= 0; row--)
+    vector<int> cleared;
+    for (auto row = rows - 1, start = 0; row >= 0; row--)
     {
         if (row_filled(row))
         {
             clear_row(row);
             drop_rows(row);
+            if (cleared.empty())
+            {
+                start = row;
+                cleared.push_back(row);
+            }
+            else
+            {
+                cleared.push_back(--start);
+            }
             row = rows;
-            cleared++;
         }
     }
     return cleared;

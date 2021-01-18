@@ -1,5 +1,6 @@
-> Add flashing animation on line-clear.
-> Add animated background.
+> Refactor color enums into a class that can be changed on a per-level basis.
+
+(maybe: )
 > Use 2 cells for each of the 4 blocks in every 
   tetromino, to reduce some of the awkwardness of
   rectangular character cells.

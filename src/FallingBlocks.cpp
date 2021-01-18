@@ -4,6 +4,7 @@ using std::this_thread::sleep_for;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::chrono::milliseconds;
+using std::vector;
 
 using namespace std::chrono_literals;
 
@@ -172,6 +173,7 @@ void FallingBlocks::draw_game()
     background.draw(Coord(0, 0), false);
 
     Coord playfield_origin = Coord(max_height / 2 - playfield.get_rows() / 2, max_width / 2 - playfield.get_cols() / 2);
+    playfield.set_origin(playfield_origin);
 
     draw_playfield_border(playfield_origin);
 
@@ -188,6 +190,22 @@ void FallingBlocks::draw_game()
     next.draw(playfield_origin);
 
     refresh();
+}
+
+void FallingBlocks::line_clear_animation(vector<int> cleared)
+{
+    Coord origin = playfield.get_origin();
+    attron(COLOR_PAIR(1));
+    for (auto row : cleared)
+    {
+        for (auto col = 0; col < playfield.get_cols(); col++)
+        {
+            mvaddch(origin.get_y() + row, origin.get_x() + col, '#');
+        }
+    }
+    attroff(COLOR_PAIR(1));
+    refresh();
+    sleep_for(CLEAR_WAIT);
 }
 
 void FallingBlocks::level_up()
@@ -224,12 +242,15 @@ unsigned long int FallingBlocks::game_loop()
         {
             tetromino.freeze(playfield);
             tetromino = generator.next(playfield);
-            unsigned long int cleared = playfield.clear_lines();
-            lines_cleared += cleared;
-            lines_this_level += cleared;
-            score = cleared == 4 ? score + BONUS_SCORE : score + cleared * LINE_SCORE;
+            vector<int> cleared = playfield.clear_lines();
+            int num_cleared = cleared.size();
+            lines_cleared += num_cleared;
+            lines_this_level += num_cleared;
+            score = num_cleared == 4 ? score + BONUS_SCORE : score + num_cleared * LINE_SCORE;
             if (lines_this_level >= LINES_TO_LEVEL)
                 level_up();
+            if (num_cleared > 0)
+                line_clear_animation(cleared);
         }
 
         duration<double, std::milli> elapsed = high_resolution_clock::now() - gravity_clock;

@@ -17,10 +17,12 @@ class Playfield
         void set_rows(int val) { rows = val; }
         int get_cols() { return cols; }
         void set_cols(int val) { cols = val; }
-        unsigned long int clear_lines();
+        std::vector<int> clear_lines();
         Cell& get_cell(Coord target) { return buffer[target.get_y()][target.get_x()]; }
         void draw(Coord origin, bool grid);
         bool game_over();
+        Coord get_origin() { return origin; }
+        void set_origin(Coord val) { origin = val; }
 
     private:
         bool row_filled(int row);
@@ -29,6 +31,7 @@ class Playfield
         int rows;
         int cols;
         std::vector<std::vector<Cell>> buffer;
+        Coord origin = Coord(0, 0);
 };
 
 #endif // PLAYFIELD_HPP
