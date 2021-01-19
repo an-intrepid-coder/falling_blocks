@@ -112,14 +112,21 @@ void FallingBlocks::uninit_curses()
     endwin();
 }
 
-void FallingBlocks::generate_background()
+void FallingBlocks::generate_background(bool game_over)
 {
     background = Playfield(term_height, term_width);
 
     if (animate)
     {
         clear();
-        mvprintw(term_height / 2, term_width / 2 - 9, "WELCOME TO LEVEL %d", level);
+        if (game_over)
+        {
+            mvprintw(term_height / 2, term_width / 2 - 5, "GAME OVER!");
+        }
+        else 
+        {    
+            mvprintw(term_height / 2, term_width / 2 - 9, "WELCOME TO LEVEL %d", level);
+        }
         refresh();
         sleep_for(1000ms);
     }
@@ -347,6 +354,10 @@ unsigned long int FallingBlocks::game_loop()
 
         sleep_for(FRAME_WAIT);
     }
+
+    if (playfield.game_over())
+        generate_background(true);
+
     return score;
 }
 

@@ -58,7 +58,7 @@ void print_help_and_exit()
          << "\n\n--ascii\t\t\tUses an 'ASCII' aesthetic instead of solid"
          << "\n\t\t\tblocks of color."
          << "\n\n--quiet\t\t\tSuppresses the intro message."
-         << "\n\n--noanimate\t\tSuppresses the level-up animations."
+         << "\n\n--noanimate\t\tSuppresses the level and game over animations."
          << "\n\n--help\t\t\tPrints information about options to the display." << endl;
     exit(0);
 }

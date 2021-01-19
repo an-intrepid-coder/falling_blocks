@@ -1,7 +1,7 @@
 #ifndef FALLINGBLOCKS_HPP
 #define FALLINGBLOCKS_HPP
 
-#define BG_ANIM_WAIT 5ms
+#define BG_ANIM_WAIT 3ms
 #define FRAME_WAIT 33ms
 #define CLEAR_WAIT 50ms
 #define DEFAULT_GRAVITY 1000
@@ -12,7 +12,7 @@
 #define LINES_TO_LEVEL 20
 #define MS_DECREMENT 75
 #define MS_FLOOR 45
-#define BACKGROUND_TETROMINOS (((term_height * term_width) / 100) * level) % (((term_height * term_width) / 10) + 1)
+#define BACKGROUND_TETROMINOS (term_height * term_width) / 10
 #define BORDER_WIDTH 10
 #define HUD_LINES 3
 
@@ -41,7 +41,7 @@ class FallingBlocks
         void line_clear_animation(std::vector<int> cleared);
         void level_up();
         void pause();
-        void generate_background();
+        void generate_background(bool game_over = false);
         void termsize_check();
         void adjust_shadow();       
  
