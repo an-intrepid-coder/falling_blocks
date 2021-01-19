@@ -9,7 +9,7 @@ using std::atoi;
 using std::exit;
 using std::min;
 
-const string version = "0.1.2";
+const string version = "0.1.3";
 
 struct Flags { int starting_level; bool solid, help, quiet, animate; };
 

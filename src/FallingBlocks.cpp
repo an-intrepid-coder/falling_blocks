@@ -13,14 +13,11 @@ FallingBlocks::FallingBlocks(int starting_level, bool solid_color, bool animate)
 {
     init_curses(solid_color);
 
-    if (starting_level > 1)
+    for (auto levels = 1; levels < min(MAX_LEVEL, starting_level); levels++)
     {
-        for (auto levels = 1; levels < min(MAX_LEVEL, starting_level); levels++)
-        {
-            this->animate = false;
-            level_up();
-            this->animate = animate;
-        }
+        this->animate = false;
+        level_up();
+        this->animate = animate;
     }
 
     getmaxyx(stdscr, term_height, term_width);
@@ -217,7 +214,12 @@ void FallingBlocks::draw_game()
     erase();
 
     if (is_resized())
+    {
+        bool animate = this->animate;
+        this->animate = false;
         generate_background();
+        this->animate = animate;
+    }
 
     background.draw(Coord(0, 0), level);
 

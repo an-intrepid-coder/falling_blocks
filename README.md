@@ -4,7 +4,7 @@
 ![Gameplay Image](images/example.png)
 
 
-**Version:** 0.1.2
+**Version:** 0.1.3
 
 **Description:** This is a clone of the well-known game of falling puzzle blocks. It is written in C++ and relies on the ncurses library. It runs the whole game in the terminal when the user runs the executable and then resumes business-as-usual when the game is over. By default, movement controls are displayed on game start. 
 
