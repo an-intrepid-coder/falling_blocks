@@ -8,7 +8,7 @@ using std::vector;
 
 using namespace std::chrono_literals;
 
-FallingBlocks::FallingBlocks(int starting_level, bool solid_color) : level(1), lines_cleared(0), score(0), lines_this_level(0)
+FallingBlocks::FallingBlocks(int starting_level, bool solid_color, bool animate) : level(1), lines_cleared(0), score(0), lines_this_level(0), animate(animate)
 {
     init_curses(solid_color);
 
@@ -116,6 +116,14 @@ void FallingBlocks::generate_background()
 {
     background = Playfield(term_height, term_width);
 
+    if (animate)
+    {
+        clear();
+        mvprintw(term_height / 2, term_width / 2 - 9, "WELCOME TO LEVEL %d", level);
+        refresh();
+        sleep_for(1000ms);
+    }
+
     for (auto tetrominos = 0; tetrominos < BACKGROUND_TETROMINOS; tetrominos++)
     {
         Tetromino bg_tetromino = generator.next(background);
@@ -126,6 +134,13 @@ void FallingBlocks::generate_background()
         }
 
         bg_tetromino.freeze(background);
+
+        if (animate)
+        {
+            background.draw(Coord(0, 0));
+            refresh();
+            sleep_for(BG_ANIM_WAIT);
+        }
     }
 }
 

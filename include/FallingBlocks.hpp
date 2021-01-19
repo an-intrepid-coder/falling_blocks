@@ -1,6 +1,7 @@
 #ifndef FALLINGBLOCKS_HPP
 #define FALLINGBLOCKS_HPP
 
+#define BG_ANIM_WAIT 5ms
 #define FRAME_WAIT 33ms
 #define CLEAR_WAIT 50ms
 #define DEFAULT_GRAVITY 1000
@@ -26,7 +27,7 @@
 class FallingBlocks
 {
     public:
-        FallingBlocks(int starting_level, bool solid_color);
+        FallingBlocks(int starting_level, bool solid_color, bool animate);
         ~FallingBlocks();
 
         unsigned long int game_loop();
@@ -49,6 +50,7 @@ class FallingBlocks
 
         int level, term_height, term_width;
         unsigned long int lines_cleared, score, lines_this_level;
+        bool animate;
         Playfield playfield = Playfield(PLAYFIELD_HEIGHT, PLAYFIELD_WIDTH);
         Playfield background = Playfield(GAME_HEIGHT, GAME_WIDTH);
         TetrominoGenerator generator = TetrominoGenerator();

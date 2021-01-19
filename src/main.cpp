@@ -10,13 +10,13 @@ using std::exit;
 
 const string version = "0.1.0";
 
-struct Flags { int starting_level; bool solid, help, quiet; };
+struct Flags { int starting_level; bool solid, help, quiet, animate; };
 
 struct Flags get_flags(int argc, char* argsv[])
 {
-    struct Flags flags{1, true, false, false};
+    struct Flags flags{1, true, false, false, true};
 
-    string level = "--level", ascii = "--ascii", quiet = "--quiet", help = "--help";
+    string level = "--level", ascii = "--ascii", quiet = "--quiet", help = "--help", animate = "--noanimate";
     for (int arg = 1; arg < argc; arg++)
     {
         if (argsv[arg] == level && argc > arg + 1)
@@ -37,6 +37,10 @@ struct Flags get_flags(int argc, char* argsv[])
         {
             flags.help = true;
         }
+        else if (argsv[arg] == animate)
+        {
+            flags.animate = false;
+        }
     }
 
     return flags;
@@ -45,15 +49,16 @@ struct Flags get_flags(int argc, char* argsv[])
 void print_help_and_exit()
 {
     cout << "\nFalling Blocks version " << version << " by sgibber2018"
-         << "\n\n\tFit the falling puzzle blocks together to clear lines before"
-         << "\n\tthey reach the top of the screen!"
+         << "\n\nDescription:\t\tFit the falling puzzle blocks together to clear lines before"
+         << "\n\t\t\tthey reach the top of the screen!"
          << "\n\nOptions:"
          << "\n--level <number>\tChoose starting level for accelerated difficulty."
          << "\n\t\t\tEach level speeds up drop-rate until it hits max speed."
          << "\n\t\t\tCurrently it will hit max speed around level 13."
-         << "\n\n--solid\t\t\tUses an arcade-y 'solid' look for the blocks."
-         << "\n\t\t\tBy default an 'ASCII' look is used."
+         << "\n\n--ascii\t\t\tUses an 'ASCII' aesthetic instead of solid"
+         << "\n\t\t\tblocks of color."
          << "\n\n--quiet\t\t\tSuppresses the intro message."
+         << "\n\n--noanimate\t\tSuppresses the level-up animations."
          << "\n\n--help\t\t\tPrints information about options to the display." << endl;
     exit(0);
 }
@@ -85,7 +90,7 @@ int main(int argc, char* argsv[])
 
     unsigned long int score;
     {
-        FallingBlocks game = FallingBlocks(flags.starting_level, flags.solid);
+        FallingBlocks game = FallingBlocks(flags.starting_level, flags.solid, flags.animate);
         score = game.game_loop();
     }
 
