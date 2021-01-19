@@ -8,15 +8,15 @@ using std::string;
 using std::atoi;
 using std::exit;
 
-const string version = "0.0.4";
+const string version = "0.1.0";
 
 struct Flags { int starting_level; bool solid, help, quiet; };
 
 struct Flags get_flags(int argc, char* argsv[])
 {
-    struct Flags flags{1, false, false, false};
+    struct Flags flags{1, true, false, false};
 
-    string level = "--level", solid = "--solid", quiet = "--quiet", help = "--help";
+    string level = "--level", ascii = "--ascii", quiet = "--quiet", help = "--help";
     for (int arg = 1; arg < argc; arg++)
     {
         if (argsv[arg] == level && argc > arg + 1)
@@ -25,9 +25,9 @@ struct Flags get_flags(int argc, char* argsv[])
             if (get_level > 1)
                 flags.starting_level = get_level;
         }
-        else if (argsv[arg] == solid)
+        else if (argsv[arg] == ascii)
         {
-            flags.solid = true;
+            flags.solid = false;
         }
         else if (argsv[arg] == quiet)
         {
@@ -61,7 +61,8 @@ void print_help_and_exit()
 void print_intro()
 {
     cout << "\nWelcome to Falling Blocks version " << version
-         << "\n\nKeys: LEFT: a/A | DOWN: s/S | RIGHT: d/D | ROTATE: f/F | QUIT: Q"
+         << "\n\nKeys: \tLEFT: a/A | DOWN: s/S | RIGHT: d/D"
+         << "\n\tROTATE: f/F or j/J | DROP: Spacebar | QUIT: Q"
          << "\n\nENTER to begin! Good luck!" << endl;
     getchar();
 }
@@ -92,3 +93,4 @@ int main(int argc, char* argsv[])
 
     return 0;
 }
+

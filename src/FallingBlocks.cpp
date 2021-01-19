@@ -31,6 +31,9 @@ int FallingBlocks::convert_input(int input)
 {
     int return_value = MOVE_NONE;
     switch (input) {
+        case 32:
+            return_value = MOVE_DROP;
+        break;
         case 83:
         case 115:
             return_value = MOVE_DOWN;
@@ -44,7 +47,9 @@ int FallingBlocks::convert_input(int input)
             return_value = MOVE_RIGHT;
         break;
         case 70:
+        case 74:
         case 102:
+        case 106:
             return_value = MOVE_ROTATE;
         break;
         case 80:
@@ -130,7 +135,7 @@ void FallingBlocks::draw_playfield_border(Coord origin)
     {
         for (auto col = origin.get_x() - BORDER_WIDTH; col < origin.get_x(); col++)
         {
-            char symbol = col == origin.get_x() - BORDER_WIDTH ? '|' : ' ';
+            char symbol = col == origin.get_x() - BORDER_WIDTH ? '|' : '>';
             mvaddch(row, col, symbol);
         }
 
@@ -139,7 +144,7 @@ void FallingBlocks::draw_playfield_border(Coord origin)
 
         for (auto col = start_hudside; col < limit_hudside; col++)
         {
-            char symbol = row < origin.get_y() + HUD_LINES ? ' ' : col == limit_hudside - 1 ? '|' : ' ';
+            char symbol = row < origin.get_y() + HUD_LINES ? ' ' : col == limit_hudside - 1 ? '|' : '<';
             mvaddch(row, col, symbol);
         }
     }
@@ -165,6 +170,21 @@ bool FallingBlocks::is_resized()
     return false;
 }
 
+void FallingBlocks::adjust_shadow()
+{
+    int orientation = tetromino.get_orientation();
+    int type = tetromino.get_type();
+    Coord origin = tetromino.get_origin();
+
+    shadow = Tetromino(origin, type, true);
+    
+    while (shadow.get_orientation() != orientation) 
+        shadow.clockwise_rotation(playfield);
+
+    while (!shadow.resting(playfield))
+        shadow.attempt_move(playfield, MOVE_DOWN);
+}
+
 void FallingBlocks::draw_game()
 {
     erase();
@@ -172,14 +192,16 @@ void FallingBlocks::draw_game()
     if (is_resized())
         generate_background();
 
-    background.draw(Coord(0, 0), false, level);
+    background.draw(Coord(0, 0), level);
 
     Coord playfield_origin = Coord(term_height / 2 - playfield.get_rows() / 2, term_width / 2 - playfield.get_cols() / 2);
     playfield.set_origin(playfield_origin);
 
     draw_playfield_border(playfield_origin);
 
-    playfield.draw(playfield_origin, true, level);
+    playfield.draw(playfield_origin, level);
+
+    shadow.draw(playfield_origin, level);
     tetromino.draw(playfield_origin, level);
 
     draw_hud(playfield_origin);
@@ -254,6 +276,8 @@ void FallingBlocks::pause()
 
 unsigned long int FallingBlocks::game_loop()
 {
+    generator.new_batch();
+    adjust_shadow();
     while (!playfield.game_over())
     {
         if (tetromino.resting(playfield))
@@ -269,6 +293,7 @@ unsigned long int FallingBlocks::game_loop()
                 level_up();
             if (num_cleared > 0)
                 line_clear_animation(cleared);
+            adjust_shadow();
         }
 
         duration<double, std::milli> elapsed = high_resolution_clock::now() - gravity_clock;
@@ -283,11 +308,18 @@ unsigned long int FallingBlocks::game_loop()
         {
             case MOVE_ROTATE:
                 tetromino.clockwise_rotation(playfield);
+                adjust_shadow();
             break;
             case MOVE_LEFT:
             case MOVE_RIGHT:
             case MOVE_DOWN:
                 tetromino.attempt_move(playfield, input);
+                adjust_shadow();
+            break;
+            case MOVE_DROP:
+                while (!tetromino.resting(playfield))
+                    tetromino.attempt_move(playfield, MOVE_DOWN);
+            break;
             break;
             case MOVE_PAUSE:
                 pause();
@@ -302,3 +334,4 @@ unsigned long int FallingBlocks::game_loop()
     }
     return score;
 }
+

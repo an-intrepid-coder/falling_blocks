@@ -10,15 +10,17 @@
 
 enum { TETROMINO_NONE, TETROMINO_SQUARE, TETROMINO_STRAIGHT, TETROMINO_SKEW_A, TETROMINO_SKEW_B, TETROMINO_L_A, TETROMINO_L_B, TETROMINO_T }; // TetrominoTypes;
 
-enum { MOVE_NONE, MOVE_LEFT, MOVE_RIGHT, MOVE_DOWN, MOVE_ROTATE, MOVE_PAUSE, MOVE_QUIT }; // MoveDirs;
+enum { MOVE_NONE, MOVE_LEFT, MOVE_RIGHT, MOVE_DOWN, MOVE_DROP, MOVE_ROTATE, MOVE_PAUSE, MOVE_QUIT }; // MoveDirs;
 
 class Tetromino
 {
     public:
-        Tetromino(Coord origin, int type);
+        Tetromino(Coord origin, int type, bool ghost = false);
 
         int get_type() { return type; }
         int get_field_size() { return field_size; }
+        Coord get_origin() { return blocks[0][0].get_coord(); }
+        int get_orientation() { return orientation; }
         void attempt_move(Playfield& playfield, int move_type);
         bool resting(Playfield& playfield);
         void freeze(Playfield& playfield);
@@ -31,6 +33,7 @@ class Tetromino
         void offset(int& dy, int& dx);
 
         int type, orientation, field_size;
+        bool ghost;
         std::vector<std::vector<Block>> blocks;
 };
 

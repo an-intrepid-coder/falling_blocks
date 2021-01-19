@@ -1,4 +1,11 @@
-> Refactor color enums into a class that can be changed on a per-level basis.
+> re-bindable controls. 
+
+> Alternative game modes. But which ones?
+
+> Better difficulty curve. It should be speed up less gradually 
+  in the beginning and speed up more gradually at levels 10+.
+
+> Better level-up graphics.
 
 (maybe: )
 > Use 2 cells for each of the 4 blocks in every 

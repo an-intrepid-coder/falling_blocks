@@ -19,10 +19,9 @@ class TetrominoGenerator
 
         int preview() { return permutations.front(); }
         Tetromino next(Playfield& playfield);
-
-    private:
         void new_batch();
 
+    private:
         std::linear_congruential_engine<uint_fast32_t, 48271, 0, 2147483647> generator;
         std::deque<int> permutations;
 };

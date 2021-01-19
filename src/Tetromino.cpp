@@ -5,7 +5,7 @@
 
 using std::vector;
 
-Tetromino::Tetromino(Coord origin, int type) : type(type), orientation(0)
+Tetromino::Tetromino(Coord origin, int type, bool ghost) : type(type), orientation(0), ghost(ghost)
 {
     field_size = type == TETROMINO_SQUARE ? 2 : 5;
 
@@ -197,7 +197,7 @@ void Tetromino::clockwise_rotation(Playfield& playfield)
                 offset(dy, dx);
                 new_blocks[row + dy][block + dx].set_filled(true);
                 Coord target = new_blocks[row + dy][block + dx].get_coord();
-                if (!valid_placement(playfield, old_block, target))
+                if (!valid_placement(playfield, old_block, target) && !ghost)
                 {
                     valid = false;
                     break;
@@ -258,18 +258,20 @@ void Tetromino::draw(Coord origin, int shift)
         {
             Coord coord = block.get_coord();
             int color_pair = (type + shift) % NUM_TETROMINOS + 1;
+            char symbol = ghost ? '*' : '#';
             if (block.get_filled() && coord.get_y() >= 0)
             {
-                if (has_colors())
+                if (has_colors() && !ghost)
                     attron(COLOR_PAIR(color_pair));
 
                 Coord coord = block.get_coord();
                 Coord target = Coord(origin, Delta{coord.get_y(), coord.get_x()});
-                mvaddch(target.get_y(), target.get_x(), '#');
+                mvaddch(target.get_y(), target.get_x(), symbol);
 
-                if (has_colors())
+                if (has_colors() && !ghost)
                     attroff(COLOR_PAIR(color_pair));
             }
         }
     }
 }
+

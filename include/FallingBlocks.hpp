@@ -42,6 +42,8 @@ class FallingBlocks
         void pause();
         void generate_background();
         void termsize_check();
+        void adjust_shadow();       
+ 
         int convert_input(int input);
         bool is_resized();
 
@@ -51,6 +53,7 @@ class FallingBlocks
         Playfield background = Playfield(GAME_HEIGHT, GAME_WIDTH);
         TetrominoGenerator generator = TetrominoGenerator();
         Tetromino tetromino = generator.next(playfield);
+        Tetromino shadow = generator.next(playfield);
         std::chrono::milliseconds gravity_threshold{DEFAULT_GRAVITY};
         std::chrono::time_point<std::chrono::high_resolution_clock> gravity_clock = std::chrono::high_resolution_clock::now();
 };
