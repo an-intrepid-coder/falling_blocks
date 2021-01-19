@@ -1,6 +1,7 @@
 #ifndef FALLINGBLOCKS_HPP
 #define FALLINGBLOCKS_HPP
 
+#define MAX_LEVEL 13
 #define BG_ANIM_WAIT 3ms
 #define FRAME_WAIT 33ms
 #define CLEAR_WAIT 50ms

@@ -5,6 +5,7 @@ using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::chrono::milliseconds;
 using std::vector;
+using std::min;
 
 using namespace std::chrono_literals;
 
@@ -14,8 +15,12 @@ FallingBlocks::FallingBlocks(int starting_level, bool solid_color, bool animate)
 
     if (starting_level > 1)
     {
-        for (auto levels = starting_level - 1; levels > 0; levels--)
+        for (auto levels = 1; levels < min(MAX_LEVEL, starting_level); levels++)
+        {
+            this->animate = false;
             level_up();
+            this->animate = animate;
+        }
     }
 
     getmaxyx(stdscr, term_height, term_width);

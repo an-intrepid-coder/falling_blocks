@@ -7,8 +7,9 @@ using std::endl;
 using std::string;
 using std::atoi;
 using std::exit;
+using std::min;
 
-const string version = "0.1.0";
+const string version = "0.1.2";
 
 struct Flags { int starting_level; bool solid, help, quiet, animate; };
 
@@ -93,6 +94,8 @@ int main(int argc, char* argsv[])
         FallingBlocks game = FallingBlocks(flags.starting_level, flags.solid, flags.animate);
         score = game.game_loop();
     }
+
+    score += min(MAX_LEVEL, flags.starting_level - 1) * LINE_SCORE * LINES_TO_LEVEL;
 
     print_outro(score);
 
