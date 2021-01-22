@@ -3,6 +3,7 @@
 
 ![Gameplay Image](images/example.png)
 
+[Link to a YouTube video demo](https://youtu.be/U6VqE9ZmcZ4)
 
 **Version:** 0.1.3
 
