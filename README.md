@@ -1,3 +1,5 @@
+**NOTE**: This project is more or less abandoned. I may come back to it down the road to play with it some more but probably not soon. It is playable and runs really well, and sometimes I still play it for fun. Anyone who wants to extend this or take over is more than welcome to do so. 
+
 # FALLING BLOCKS 
 ##### by sgibber2018
 
